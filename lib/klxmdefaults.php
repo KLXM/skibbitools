@@ -84,12 +84,6 @@ class skibbiTools
 }
     }
 
-    public static function formatGermanDate(string $date): string
-    {
-        $formatter = new \IntlDateFormatter('de_DE', \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
-        return $formatter->format(strtotime($date));
-    }
-
     public static function checkUrl(?string $url): ?string
     {
         if ($url) {
