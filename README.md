@@ -227,4 +227,34 @@ In diesem Beispiel:
 - `:startDate` und `:endDate` sind Platzhalter für die Parameter, die in der Abfrage verwendet werden.
 - Die Methode `get` führt die Abfrage aus und gibt die Ergebnisse zurück.
 
-Dieser Ansatz ermöglicht es Ihnen, effizient alle Events innerhalb des gewünschten Zeitraums abzurufen.
+
+### Beispiel 5: Relationen auflösen 
+
+Um in REDAXO mit der `kOrm` Klasse eine Relation zwischen Veranstaltungen (in der `events` Tabelle) und deren Autoren (in der REDAXO-internen `user` Tabelle) aufzulösen, nutzen Sie die `with` Methode, um eine Verknüpfung zwischen diesen Tabellen herzustellen. Hierbei wird angenommen, dass die `events` Tabelle eine Spalte `author_id` enthält, die auf die ID eines Nutzers in der `user` Tabelle verweist.
+
+### Schritte zur Auflösung der Relation:
+
+1. **Definieren der Relation:** 
+   Verwenden Sie die `with` Methode, um die Relation zwischen `events` und `user` zu definieren. Hierbei wird angegeben, dass die `author_id` in `events` mit der `id` in `user` korrespondiert.
+
+   ```php
+   $eventOrm = new kOrm('events');
+   $eventOrm->with('author', 'rex_user', 'id', 'author_id');
+   ```
+
+2. **Abrufen und Anzeigen der Daten:**
+   Verwenden Sie die `get` Methode, um die Events zusammen mit den Autorendaten abzurufen. Die Autorendaten werden im resultierenden Array unter dem Schlüssel `'author'` verfügbar sein.
+
+   ```php
+   $events = $eventOrm->get();
+   foreach ($events as $event) {
+       echo "Event: " . $event['name'] . ", Datum: " . $event['date'];
+       echo "<br>Autor: " . $event['author']['name'] . "<br><br>";
+   }
+   ```
+
+In diesem Szenario kümmert sich `kOrm` um die Verknüpfung der Daten aus beiden Tabellen, sodass Sie einfach auf die Autorendaten für jedes Event zugreifen können.
+
+
+
+
