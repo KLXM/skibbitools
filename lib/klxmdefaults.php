@@ -2,10 +2,9 @@
 
 class skibbiTools
 {
- public static function cke5LightboxHelper(): void
+    public static function cke5LightboxHelper(): void
     {
-        if (rex::isFrontend()) {
-            {
+        if (rex::isFrontend()) { {
                 // Code hier einfügen
 
                 rex_extension::register('OUTPUT_FILTER', function (rex_extension_point $ep) {
@@ -44,9 +43,9 @@ class skibbiTools
                 $copyright = $media->getValue('med_copyright');
                 $copyright_link = $media->getValue('med_copyright_link');
                 if ($copyright_link != '' && $type == 'link') {
-                    $output = '<a rel="noopener" href="'.$copyright_link.'">Copyright: '.$copyright.'</a>';
+                    $output = '<a rel="noopener" href="' . $copyright_link . '">Copyright: ' . $copyright . '</a>';
                 } elseif ($copyright != '') {
-                    $output = 'Copyright: '.$copyright;
+                    $output = 'Copyright: ' . $copyright;
                 }
             }
         }
@@ -72,27 +71,6 @@ class skibbiTools
     {
         $formatter = new \IntlDateFormatter('de_DE', \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
         return $formatter->format(strtotime($date));
-    }
-
-    public static function checkUrl(?string $url): ?string
-    {
-        if ($url) {
-            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-                return null;
-            }
-            if (file_exists(rex_path::media($url)) === true) {
-                $url = rex_url::media($url);
-            } else {
-                if (filter_var($url, FILTER_VALIDATE_URL) === false && is_numeric($url)) {
-                    $url = rex_getUrl($url);
-                }
-            }
-            $link = $url;
-            return $link;
-        }
-        return null;
-    }
-}
     }
 
     public static function checkUrl(?string $url): ?string
