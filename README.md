@@ -1,5 +1,5 @@
 # Skibbi's tools
-Skibbi's experimental defaults for REDAXO cms
+Skibbi's experiments for REDAXO cms
 
 
 ## kOrm-Class
