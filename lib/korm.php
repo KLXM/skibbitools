@@ -1,5 +1,5 @@
 <?php
-class kOrm
+class skOrm
 {
     protected string $tableName;
     protected ?array $data;
