@@ -7,6 +7,7 @@ class skOrm
     protected array $whereBindings = [];
     protected array $relations = [];
 
+
     public function __construct(string $tableName)
     {
         $this->tableName = $tableName;
@@ -184,5 +185,51 @@ class skOrm
             'localKey' => $localKey
         ];
         return $this;
+    }
+
+
+    public function search(array $searchColumns, string $searchTerm, ?string $orderBy = null, string $orderDirection = 'ASC'): array
+    {
+        $searchConditions = array_map(function ($column) {
+            return "$column LIKE :searchTerm";
+        }, $searchColumns);
+
+        $searchConditionString = implode(' OR ', $searchConditions);
+        $sql = rex_sql::factory();
+        $queryParams = ['searchTerm' => "%$searchTerm%"];
+
+        $query = "SELECT * FROM {$this->tableName} WHERE {$searchConditionString}";
+
+        if ($orderBy) {
+            $query .= " ORDER BY $orderBy $orderDirection";
+        }
+
+        $sql->setQuery($query, $queryParams);
+        return $sql->getArray();
+    }
+
+    public function searchAndReplace(array $searchColumns, string $searchTerm, string $replaceTerm): void
+    {
+        $searchConditions = array_map(function ($column) {
+            return "$column LIKE :searchTerm";
+        }, $searchColumns);
+
+        $searchConditionString = implode(' OR ', $searchConditions);
+        $sql = rex_sql::factory();
+        $queryParams = [
+            'searchTerm' => "%$searchTerm%",
+            'replaceTerm' => $replaceTerm
+        ];
+
+        $query = "UPDATE {$this->tableName} SET ";
+
+        foreach ($searchColumns as $column) {
+            $query .= "$column = REPLACE($column, :searchTerm, :replaceTerm), ";
+        }
+
+        $query = rtrim($query, ', ');
+        $query .= " WHERE {$searchConditionString}";
+
+        $sql->setQuery($query, $queryParams);
     }
 }
