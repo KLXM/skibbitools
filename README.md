@@ -2,9 +2,9 @@
 Skibbi's experiments for REDAXO cms
 
 
-## kOrm-Class
+## skOrm-Class
 
-### Dokumentation für die `kOrm` Klasse
+### Dokumentation für die `skOrm` Klasse
 
 - Diese Klasse nutzt die `rex_sql` Klasse von REDAXO für Datenbankoperationen.
 - Sie implementiert grundlegende ORM-Funktionalitäten wie Laden, Einfügen, Aktualisieren und Löschen von Datensätzen.
@@ -109,9 +109,9 @@ public function with(string $relationName, string $foreignTable, string $foreign
 ### Beispiele
 
 ```php
-$kOrm = new kOrm('meine_tabelle');
-$datensatz = $kOrm->load(1);
-$alleDatensätze = $kOrm->findAll();
+$skOrm = new skOrm('meine_tabelle');
+$datensatz = $skOrm->load(1);
+$alleDatensätze = $skOrm->findAll();
 ```
 
 
@@ -120,8 +120,8 @@ $alleDatensätze = $kOrm->findAll();
 Angenommen, Sie haben ein REDAXO-AddOn, das Informationen zu Veranstaltungen verwaltet. Die Informationen werden in einer Tabelle `events` gespeichert. Um Daten zu laden und anzuzeigen, können Sie folgendermaßen vorgehen:
 
 ```php
-// Initialisierung der kOrm Klasse für die 'events' Tabelle
-$eventOrm = new kOrm('events');
+// Initialisierung der skOrm Klasse für die 'events' Tabelle
+$eventOrm = new skOrm('events');
 
 // Laden eines spezifischen Events anhand der ID
 $event = $eventOrm->load(1);
@@ -198,11 +198,11 @@ foreach ($events as $event) {
 
 ### Beispiel 4: RAW-Abfrage
 
-Um alle Termine zwischen dem 1. Januar 2024 und dem 1. Juni 2024 abzurufen, können Sie die `whereRaw` Methode zusammen mit der `get` Methode der `kOrm` Klasse verwenden. Diese Methode ermöglicht es Ihnen, eine benutzerdefinierte SQL-Bedingung zu formulieren, die es erlaubt, einen Datumsbereich zu spezifizieren. Hier ist ein Beispiel, wie Sie dies umsetzen können:
+Um alle Termine zwischen dem 1. Januar 2024 und dem 1. Juni 2024 abzurufen, können Sie die `whereRaw` Methode zusammen mit der `get` Methode der `skOrm` Klasse verwenden. Diese Methode ermöglicht es Ihnen, eine benutzerdefinierte SQL-Bedingung zu formulieren, die es erlaubt, einen Datumsbereich zu spezifizieren. Hier ist ein Beispiel, wie Sie dies umsetzen können:
 
 ```php
-// Initialisierung der kOrm Klasse für die 'events' Tabelle
-$eventOrm = new kOrm('events');
+// Initialisierung der skOrm Klasse für die 'events' Tabelle
+$eventOrm = new skOrm('events');
 
 // Formulieren der Bedingung für den Zeitraum
 $startDate = '2024-01-01';
@@ -230,7 +230,7 @@ In diesem Beispiel:
 
 ### Beispiel 5: Relationen auflösen 
 
-Um in REDAXO mit der `kOrm` Klasse eine Relation zwischen Veranstaltungen (in der `events` Tabelle) und deren Autoren (in der REDAXO-internen `user` Tabelle) aufzulösen, nutzen Sie die `with` Methode, um eine Verknüpfung zwischen diesen Tabellen herzustellen. Hierbei wird angenommen, dass die `events` Tabelle eine Spalte `author_id` enthält, die auf die ID eines Nutzers in der `user` Tabelle verweist.
+Um in REDAXO mit der `skOrm` Klasse eine Relation zwischen Veranstaltungen (in der `events` Tabelle) und deren Autoren (in der REDAXO-internen `user` Tabelle) aufzulösen, nutzen Sie die `with` Methode, um eine Verknüpfung zwischen diesen Tabellen herzustellen. Hierbei wird angenommen, dass die `events` Tabelle eine Spalte `author_id` enthält, die auf die ID eines Nutzers in der `user` Tabelle verweist.
 
 ### Schritte zur Auflösung der Relation:
 
@@ -238,7 +238,7 @@ Um in REDAXO mit der `kOrm` Klasse eine Relation zwischen Veranstaltungen (in de
    Verwenden Sie die `with` Methode, um die Relation zwischen `events` und `user` zu definieren. Hierbei wird angegeben, dass die `author_id` in `events` mit der `id` in `user` korrespondiert.
 
    ```php
-   $eventOrm = new kOrm('events');
+   $eventOrm = new skOrm('events');
    $eventOrm->with('author', 'rex_user', 'id', 'author_id');
    ```
 
@@ -253,7 +253,7 @@ Um in REDAXO mit der `kOrm` Klasse eine Relation zwischen Veranstaltungen (in de
    }
    ```
 
-In diesem Szenario kümmert sich `kOrm` um die Verknüpfung der Daten aus beiden Tabellen, sodass Sie einfach auf die Autorendaten für jedes Event zugreifen können.
+In diesem Szenario kümmert sich `skOrm` um die Verknüpfung der Daten aus beiden Tabellen, sodass Sie einfach auf die Autorendaten für jedes Event zugreifen können.
 
 
 
