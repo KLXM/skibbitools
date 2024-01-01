@@ -196,7 +196,7 @@ foreach ($events as $event) {
 }
 ```
 
-### Beispiel 4: RAW-Abdrage
+### Beispiel 4: RAW-Abfrage
 
 Um alle Termine zwischen dem 1. Januar 2024 und dem 1. Juni 2024 abzurufen, können Sie die `whereRaw` Methode zusammen mit der `get` Methode der `kOrm` Klasse verwenden. Diese Methode ermöglicht es Ihnen, eine benutzerdefinierte SQL-Bedingung zu formulieren, die es erlaubt, einen Datumsbereich zu spezifizieren. Hier ist ein Beispiel, wie Sie dies umsetzen können:
 
