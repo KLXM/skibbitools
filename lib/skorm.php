@@ -137,9 +137,8 @@ class skOrm
         return (int) $sql->getLastId();
     }
 
-    public function update(array $data, array $criteria): void
+    public function update(array $data): void
     {
-        $conditionParts = $this->buildConditions($criteria);
         $sql = $this->createSql();
         $sql->setTable($this->tableName);
 
@@ -147,9 +146,11 @@ class skOrm
             $sql->setValue($key, $value);
         }
 
-        $sql->setWhere($conditionParts['conditionString'], $conditionParts['params']);
+        $this->applyWhereConditions($sql); // Anwenden der Where-Bedingungen
         $sql->update();
+        $this->resetQuery();
     }
+
 
     public function delete(): void
     {
