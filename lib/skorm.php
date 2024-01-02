@@ -1,4 +1,5 @@
 <?php
+
 class skOrm
 {
     protected string $tableName;
@@ -6,17 +7,60 @@ class skOrm
     protected array $whereConditions = [];
     protected array $whereBindings = [];
     protected array $relations = [];
-
+    protected array $orderByConditions = [];
+    protected array $selectedColumns = [];
+    protected int $dbIndex = 1;
 
     public function __construct(string $tableName)
     {
         $this->tableName = $tableName;
     }
 
+    public function setDbIndex(int $dbIndex): self
+    {
+        $this->dbIndex = $dbIndex;
+        return $this;
+    }
+
+    protected function createSql(): rex_sql
+    {
+        return rex_sql::factory($this->dbIndex);
+    }
+
+    private function buildSelectQuery(string $conditionString = '', array $params = []): string
+    {
+        $selectColumns = empty($this->selectedColumns) ? '*' : implode(', ', $this->selectedColumns);
+        $query = "SELECT $selectColumns FROM {$this->tableName}";
+
+        if ($conditionString) {
+            $query .= " WHERE $conditionString";
+        }
+
+        if (!empty($this->orderByConditions)) {
+            $orderByString = implode(', ', $this->orderByConditions);
+            $query .= " ORDER BY $orderByString";
+        }
+
+        return $query;
+    }
+
+    private function buildConditions(array $criteria): array
+    {
+        $conditions = [];
+        $params = [];
+
+        foreach ($criteria as $key => $value) {
+            $conditions[] = "$key = :$key";
+            $params[$key] = $value;
+        }
+
+        return ['conditionString' => implode(' AND ', $conditions), 'params' => $params];
+    }
+
     public function load(int $id): ?array
     {
-        $sql = rex_sql::factory();
-        $sql->setQuery("SELECT * FROM {$this->tableName} WHERE id = :id", ['id' => $id]);
+        $sql = $this->createSql();
+        $sql->setQuery($this->buildSelectQuery("id = :id", ['id' => $id]));
 
         if ($sql->getRows() == 0) {
             return null;
@@ -28,54 +72,61 @@ class skOrm
 
     public function findAll(): array
     {
-        $sql = rex_sql::factory();
-        $sql->setQuery("SELECT * FROM {$this->tableName}");
+        $sql = $this->createSql();
+        $sql->setQuery($this->buildSelectQuery());
         return $sql->getArray();
     }
 
-    public function findBy(array $criteria): array
+    public function getOne(): ?array
     {
-        $conditions = [];
-        $params = [];
-
-        foreach ($criteria as $key => $value) {
-            $conditions[] = "$key = :$key";
-            $params[$key] = $value;
-        }
-
-        $conditionString = implode(' AND ', $conditions);
-        $sql = rex_sql::factory();
-        $sql->setQuery("SELECT * FROM {$this->tableName} WHERE {$conditionString}", $params);
-
-        return $sql->getArray();
-    }
-
-    public function findOneBy(array $criteria): ?array
-    {
-        $result = $this->findBy($criteria);
+        $result = $this->get();
         return !empty($result) ? $result[0] : null;
     }
 
-    public function countBy(array $criteria): int
+    public function searchAndReplace(array $columns, string $search, string $replace, bool $testOnly = false): array
     {
-        $conditions = [];
-        $params = [];
+        $affectedRows = [];
+        $rows = $this->searchByString($columns, $search);
 
-        foreach ($criteria as $key => $value) {
-            $conditions[] = "$key = :$key";
-            $params[$key] = $value;
+        if (!$testOnly) {
+            foreach ($rows as $row) {
+                $updateData = [];
+                foreach ($columns as $column) {
+                    $updateData[$column] = str_replace($search, $replace, $row[$column]);
+                }
+                $this->update($updateData, ['id' => $row['id']]);
+                $affectedRows[] = $row['id'];
+            }
+        } else {
+            foreach ($rows as $row) {
+                $affectedRows[] = $row['id'];
+            }
         }
 
-        $conditionString = implode(' AND ', $conditions);
-        $sql = rex_sql::factory();
-        $sql->setQuery("SELECT COUNT(*) AS count FROM {$this->tableName} WHERE {$conditionString}", $params);
+        return $affectedRows;
+    }
 
-        return (int) $sql->getValue("count");
+    public function searchByString(array $columns, string $searchString): array
+    {
+        $conditionString = '';
+        foreach ($columns as $column) {
+            $conditionString .= (empty($conditionString) ? '' : ' OR ') . "$column LIKE :searchString";
+        }
+
+        $sql = $this->createSql();
+        $sql->setQuery($this->buildSelectQuery($conditionString, ['searchString' => '%' . $searchString . '%']));
+        return $sql->getArray();
+    }
+
+    public function count(): int
+    {
+        $results = $this->get();
+        return count($results);
     }
 
     public function insert(array $data): int
     {
-        $sql = rex_sql::factory();
+        $sql = $this->createSql();
         $sql->setTable($this->tableName);
 
         foreach ($data as $key => $value) {
@@ -88,42 +139,28 @@ class skOrm
 
     public function update(array $data, array $criteria): void
     {
-        $conditions = [];
-        $params = [];
-
-        foreach ($criteria as $key => $value) {
-            $conditions[] = "$key = :$key";
-            $params[$key] = $value;
-        }
-
-        $conditionString = implode(' AND ', $conditions);
-        $sql = rex_sql::factory();
+        $conditionParts = $this->buildConditions($criteria);
+        $sql = $this->createSql();
         $sql->setTable($this->tableName);
 
         foreach ($data as $key => $value) {
             $sql->setValue($key, $value);
         }
 
-        $sql->setWhere($conditionString, $params);
+        $sql->setWhere($conditionParts['conditionString'], $conditionParts['params']);
         $sql->update();
     }
 
-    public function delete(array $criteria): void
+    public function delete(): void
     {
-        $conditions = [];
-        $params = [];
-
-        foreach ($criteria as $key => $value) {
-            $conditions[] = "$key = :$key";
-            $params[$key] = $value;
-        }
-
-        $conditionString = implode(' AND ', $conditions);
-        $sql = rex_sql::factory();
+        $sql = $this->createSql();
         $sql->setTable($this->tableName);
-        $sql->setWhere($conditionString, $params);
+        $this->applyWhereConditions($sql);
         $sql->delete();
+        $this->resetQuery();
     }
+
+
 
     public function where(string $column, string $operator, $value): self
     {
@@ -147,18 +184,29 @@ class skOrm
         }
     }
 
+    public function orderBy(string $column, string $direction = 'ASC'): self
+    {
+        $this->orderByConditions[] = "$column $direction";
+        return $this;
+    }
+
+    public function select(array $columns): self
+    {
+        $this->selectedColumns = $columns;
+        return $this;
+    }
+
     public function get(): array
     {
-        $sql = rex_sql::factory();
-        $sql->setTable($this->tableName);
+        $sql = $this->createSql();
+        $sql->setQuery($this->buildSelectQuery());
         $this->applyWhereConditions($sql);
-        $sql->select("*");
         $results = $sql->getArray();
 
         if (!empty($this->relations)) {
             foreach ($results as $key => $result) {
                 foreach ($this->relations as $relationName => $relation) {
-                    $relatedSql = rex_sql::factory();
+                    $relatedSql = $this->createSql();
                     $relatedSql->setTable($relation['foreignTable']);
                     $relatedSql->setWhere($relation['foreignKey'] . ' = :value', ['value' => $result[$relation['localKey']]]);
                     $relatedSql->select("*");
@@ -175,6 +223,8 @@ class skOrm
     {
         $this->whereConditions = [];
         $this->whereBindings = [];
+        $this->orderByConditions = [];
+        $this->selectedColumns = [];
     }
 
     public function with(string $relationName, string $foreignTable, string $foreignKey, string $localKey = 'id'): self
@@ -185,51 +235,5 @@ class skOrm
             'localKey' => $localKey
         ];
         return $this;
-    }
-
-
-    public function search(array $searchColumns, string $searchTerm, ?string $orderBy = null, string $orderDirection = 'ASC'): array
-    {
-        $searchConditions = array_map(function ($column) {
-            return "$column LIKE :searchTerm";
-        }, $searchColumns);
-
-        $searchConditionString = implode(' OR ', $searchConditions);
-        $sql = rex_sql::factory();
-        $queryParams = ['searchTerm' => "%$searchTerm%"];
-
-        $query = "SELECT * FROM {$this->tableName} WHERE {$searchConditionString}";
-
-        if ($orderBy) {
-            $query .= " ORDER BY $orderBy $orderDirection";
-        }
-
-        $sql->setQuery($query, $queryParams);
-        return $sql->getArray();
-    }
-
-    public function searchAndReplace(array $searchColumns, string $searchTerm, string $replaceTerm): void
-    {
-        $searchConditions = array_map(function ($column) {
-            return "$column LIKE :searchTerm";
-        }, $searchColumns);
-
-        $searchConditionString = implode(' OR ', $searchConditions);
-        $sql = rex_sql::factory();
-        $queryParams = [
-            'searchTerm' => "%$searchTerm%",
-            'replaceTerm' => $replaceTerm
-        ];
-
-        $query = "UPDATE {$this->tableName} SET ";
-
-        foreach ($searchColumns as $column) {
-            $query .= "$column = REPLACE($column, :searchTerm, :replaceTerm), ";
-        }
-
-        $query = rtrim($query, ', ');
-        $query .= " WHERE {$searchConditionString}";
-
-        $sql->setQuery($query, $queryParams);
     }
 }
