@@ -177,6 +177,14 @@ class skOrm
         return $this;
     }
 
+    public function whereInList(string $column, array $values): self
+    {
+        $regexp = implode('|', array_map('intval', $values));
+        $this->whereRaw("CONCAT(',', $column, ',') REGEXP ',(" . $regexp . "),'");
+
+        return $this;
+    }
+
     protected function applyWhereConditions(rex_sql $sql): void
     {
         if (!empty($this->whereConditions)) {
