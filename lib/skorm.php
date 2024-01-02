@@ -10,6 +10,7 @@ class skOrm
     protected array $orderByConditions = [];
     protected array $selectedColumns = [];
     protected array $joins = [];
+    protected array $concatenations = [];
     protected int $limit = 0;
     protected int $offset = 0;
     protected int $dbIndex = 1;
@@ -34,6 +35,12 @@ class skOrm
     {
 
         $selectColumns = empty($this->selectedColumns) ? '*' : implode(', ', $this->selectedColumns);
+
+
+        if (!empty($this->concatenations)) {
+            $selectColumns .= ', ' . implode(', ', $this->concatenations);
+        }
+        
         $query = "SELECT $selectColumns FROM {$this->tableName}";
 
 
@@ -249,6 +256,17 @@ class skOrm
         return $this;
     }
 
+    public function concatFields(array $elements, string $as): self {
+        $concatParts = array_map(function($element) {
+            return strpos($element, '{') === 0 ? $element : "`$element`";
+        }, $elements);
+
+        $concatenated = "CONCAT(" . implode(", ", $concatParts) . ") AS `$as`";
+        $this->concatenations[] = $concatenated;
+        return $this;
+    }
+
+    
     public function innerJoin(string $table, string $on): self
     {
         $this->joins[] = "INNER JOIN $table ON $on";
