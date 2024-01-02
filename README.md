@@ -3,201 +3,149 @@ Skibbi's experiments for REDAXO cms
 
 ## skOrm
 
-Die Klasse `skOrm` ist ein Objekt-Relationaler Mapper (ORM), der für die Interaktion mit Datenbanken in REDAXO 5.x verwendet werden kann. Sie bietet Methoden zur Verwaltung von Datenbankoperationen wie Abfragen, Einfügen, Aktualisieren und Löschen von Datensätzen.
+### Kleises experimentelles ORM für REDAXO rex_sql
 
-### Konstruktor
+#### Kategorisierung der Methoden
+1. **Initialisierung und Konfiguration**
+2. **CRUD-Operationen**
+3. **Such- und Filtermethoden**
+4. **Aggregations- und Hilfsmethoden**
+5. **Relationen und Joins**
+6. **Query-Building und Modifikationen**
 
-- `__construct(string $tableName)`: Initialisiert eine Instanz der Klasse mit dem angegebenen Tabellennamen.
-
+#### 1. Initialisierung und Konfiguration
+- **Konstruktor (`__construct`)**: Initialisiert die Klasse mit dem Namen der Datenbanktabelle.
   ```php
   $orm = new skOrm('meine_tabelle');
   ```
-
-### Methoden
-
-#### Datenbank-Index setzen
-
-- `setDbIndex(int $dbIndex): self`: Setzt den Index der Datenbankverbindung.
-
+- **Datenbank-Index setzen (`setDbIndex`)**: Legt den Index der zu verwendenden Datenbank fest.
   ```php
   $orm->setDbIndex(2);
   ```
 
-#### Datensätze laden
-
-- `load(int $id): ?array`: Lädt einen Datensatz anhand seiner ID.
-
+#### 2. CRUD-Operationen
+- **Laden (`load`)**: Lädt einen Datensatz anhand seiner ID.
   ```php
-  $datensatz = $orm->load(1);
+  $daten = $orm->load(1);
   ```
-
-- `findAll(): array`: Lädt alle Datensätze aus der Tabelle.
-
+- **Alle finden (`findAll`)**: Ruft alle Datensätze aus der Tabelle ab.
   ```php
-  $alleDatensaetze = $orm->findAll();
+  $alleDaten = $orm->findAll();
   ```
-
-- `getOne(): ?array`: Lädt den ersten Datensatz, der den Abfragekriterien entspricht.
-
+- **Einfügen (`insert`)**: Fügt einen neuen Datensatz in die Tabelle ein.
   ```php
-  $ersterDatensatz = $orm->where('name', '=', 'Max')->getOne();
+  $id = $orm->insert(['spalte1' => 'wert1', 'spalte2' => 'wert2']);
   ```
-
-#### Suche und Ersetzen
-
-- `searchAndReplace(array $columns, string $search, string $replace, bool $testOnly = false): array`: Sucht und ersetzt in angegebenen Spalten.
-
+- **Aktualisieren (`update`)**: Aktualisiert Datensätze basierend auf festgelegten Bedingungen.
   ```php
-  $betroffeneIds = $orm->searchAndReplace(['name', 'beschreibung'], 'alt', 'neu');
+  $orm->where('id', '=', 1)->update(['spalte1' => 'neuerWert']);
   ```
-
-#### Zählen
-
-- `count(): int`: Zählt die Anzahl der Datensätze, die den Kriterien entsprechen.
-
-  ```php
-  $anzahl = $orm->where('status', '=', 'aktiv')->count();
-  ```
-
-#### Einfügen und Aktualisieren
-
-- `insert(array $data): int`: Fügt einen neuen Datensatz ein.
-
-  ```php
-  $neueId = $orm->insert(['name' => 'Neuer Name', 'status' => 'aktiv']);
-  ```
-
-- `update(array $data): void`: Aktualisiert Datensätze.
-
-  ```php
-  $orm->where('id', '=', 1)->update(['name' => 'Geänderter Name']);
-  ```
-
-#### Löschen
-
-- `delete(): void`: Löscht Datensätze.
-
+- **Löschen (`delete`)**: Löscht Datensätze basierend auf festgelegten Bedingungen.
   ```php
   $orm->where('id', '=', 1)->delete();
   ```
 
-#### Bedingungen und Sortierung
-
-- `where(string $column, string $operator, $value): self`: Fügt eine Bedingung hinzu.
-
+#### 3. Such- und Filtermethoden
+- **Bedingungen setzen (`where`, `whereRaw`, `whereInList`)**: Ermöglicht das Filtern von Daten anhand spezifischer Bedingungen.
   ```php
-  $orm->where('status', '=', 'aktiv');
+  $gefilterteDaten = $orm->where('spalte', '=', 'wert')->get();
+  ```
+- **Suchen und Ersetzen (`searchAndReplace`)**: Sucht nach einem String in bestimmten Spalten und ersetzt ihn.
+  ```php
+  $betroffeneZeilen = $orm->searchAndReplace(['spalte1'], 'suche', 'ersetze');
+  ```
+- **Nach String suchen (`searchByString`)**: Findet Datensätze, die einen bestimmten String enthalten.
+  ```php
+  $suchergebnisse = $orm->searchByString(['spalte1', 'spalte2'], 'suchString');
   ```
 
-- `orderBy(string $column, string $direction = 'ASC'): self`: Fügt eine Sortierungsbedingung hinzu.
-
+#### 4. Aggregations- und Hilfsmethoden
+- **Zählen (`count`)**: Zählt die Anzahl der Datensätze, die den festgelegten Bedingungen entsprechen.
   ```php
-  $orm->orderBy('name', 'DESC');
+  $anzahl = $orm->where('spalte', '=', 'wert')->count();
+  ```
+- **Paginierung (`paginate`)**: Unterstützt das Paginieren von Datensätzen.
+  ```php
+  $seitenDaten = $orm->paginate(1, 10);
   ```
 
-#### Auswahl spezifischer Spalten
-
-- `select(array $columns): self`: Wählt spezifische Spalten für die Abfrage aus.
-
+#### 5. Relationen und Joins
+- **Relationen hinzufügen (`with`)**: Bindet verwandte Datensätze aus einer anderen Tabelle ein.
   ```php
-  $orm->select(['name', 'status']);
+  $datenMitRelation = $orm->with('relationName', 'andere_tabelle', 'fremdschluessel')->get();
+  ```
+- **Join-Methoden (`innerJoin`, `leftJoin`, `rightJoin`)**: Erlauben die Kombination von Daten aus verschiedenen Tabellen.
+  ```php
+  $ergebnisse = $orm->select(['t1.spalte', 't2.andereSpalte'])->leftJoin('andere_tabelle', 't1.id = t2.foreign_id')->get();
   ```
 
-#### Beziehungen
-
-- `with(string $relationName, string $foreignTable, string $foreignKey, string $localKey = 'id'): self`: Definiert eine Beziehung zu einer anderen Tabelle.
-
+#### 6. Query-Building und Modifikationen
+- **Selektieren (`select`)**: Spezifiziert, welche Spalten abgerufen werden sollen.
   ```php
-  $orm->with('benutzer', 'benutzer_tabelle', 'benutzer_id');
+  $spezifischeDaten = $orm->select(['spalte1', 'spalte2'])->get();
+  ```
+- **Sortierung (`orderBy`)**: Sortiert die Ergebnisse anhand einer bestimmten Spalte.
+  ```php
+  $sortierteDaten = $orm->orderBy('spalte', 'DESC')->get();
+  ```
+- **Limit und Offset setzen (`limit`)**: Begrenzt die Anzahl der zurückgegebenen Datensätze.
+  ```php
+  $limitierteDaten = $orm->limit(10, 5)->get();
   ```
 
-### Anwendung in REDAXO 5.x
+## Praxisbeispiele
 
-Die `skOrm`-Klasse bietet eine flexible und intuitive Möglichkeit, Datenbankoperationen in REDAXO 5.x zu handhaben. Sie erleichtert die Entwicklung durch die Bereitstellung einer klaren API für häufige Datenbankaktionen.
-
-
-## Beispiele: 
-
-Natürlich, hier sind vier praktische Fallbeispiele zur Verwendung der `skOrm`-Klasse in verschiedenen Szenarien:
-
-### Fallbeispiel 1: Datensatz Abrufen
-Angenommen, Sie möchten einen bestimmten Datensatz aus der Tabelle `mitarbeiter` anhand seiner ID abrufen.
-
-```php
-$orm = new skOrm('mitarbeiter');
-$mitarbeiter = $orm->load(5); // Angenommen, die ID des Mitarbeiters ist 5
-
-if ($mitarbeiter) {
-    echo 'Mitarbeiter gefunden: ' . $mitarbeiter['name'];
-} else {
-    echo 'Kein Mitarbeiter mit dieser ID gefunden.';
-}
-```
-
-### Fallbeispiel 2: Mehrere Datensätze mit Bedingungen und Sortierung
-Sie möchten alle aktiven Projekte aus der `projekte` Tabelle abrufen und diese nach dem Startdatum absteigend sortieren.
-
-```php
-$orm = new skOrm('projekte');
-$aktiveProjekte = $orm->where('status', '=', 'aktiv')
-                      ->orderBy('startdatum', 'DESC')
-                      ->get();
-
-foreach ($aktiveProjekte as $projekt) {
-    echo 'Projekt: ' . $projekt['name'] . ', Startdatum: ' . $projekt['startdatum'] . "\n";
-}
-```
-
-### Fallbeispiel 3: Datensatz Einfügen
-Sie möchten einen neuen Mitarbeiter in die `mitarbeiter` Tabelle einfügen.
-
-```php
-$orm = new skOrm('mitarbeiter');
-$neueMitarbeiterId = $orm->insert([
-    'name' => 'Max Mustermann',
-    'abteilung' => 'Entwicklung',
-    'status' => 'aktiv'
-]);
-
-echo 'Neuer Mitarbeiter hinzugefügt mit ID: ' . $neueMitarbeiterId;
-```
-
-### Fallbeispiel 4: Datensätze Aktualisieren und Löschen
-Sie möchten den Status eines Mitarbeiters aktualisieren und inaktive Mitarbeiter aus der Tabelle entfernen.
-
-```php
-// Mitarbeiterstatus aktualisieren
-$orm = new skOrm('mitarbeiter');
-$orm->where('id', '=', 3)->update(['status' => 'inaktiv']);
-
-// Inaktive Mitarbeiter löschen
-$orm->where('status', '=', 'inaktiv')->delete();
-echo 'Inaktive Mitarbeiter wurden gelöscht.';
-```
-
-
-### Fallbeispiel 5: Abrufen von Artikeln mit Autor-Informationen
-
-Zuerst wird die Relation in der `skOrm`-Klasse definiert, indem die Methode `with()` verwendet wird. Anschließend kann man die Artikel abrufen und für jeden Artikel die zugehörigen Autorendaten anzeigen.
-
+#### Beispiel 1: Einfaches Abrufen von Daten
 ```php
 $orm = new skOrm('artikel');
-$orm->with('autor', 'rex_user', 'id', 'autor_id'); // Relation definiert
-
-$artikelMitAutoren = $orm->get();
-
-foreach ($artikelMitAutoren as $artikel) {
-    echo 'Titel: ' . $artikel['titel'] . "\n";
-    echo 'Inhalt: ' . $artikel['inhalt'] . "\n";
-    echo 'Autor: ' . $artikel['autor'][0]['name'] . "\n"; // Zugriff auf die Autorendaten
-    echo "---------------------\n";
+$alleArtikel = $orm->findAll();
+foreach ($alleArtikel as $artikel) {
+    echo "Artikel-ID: {$artikel['id']}, Titel: {$artikel['titel']}\n";
 }
 ```
+*Beschreibung*: Dieses Beispiel zeigt, wie man alle Datensätze aus der Tabelle `artikel` abruft und durchläuft.
 
-In diesem Beispiel:
+#### Beispiel 2: Gezielte Abfrage mit Bedingungen
+```php
+$orm = new skOrm('nutzer');
+$aktiveNutzer = $orm->where('status', '=', 'aktiv')->get();
+foreach ($aktiveNutzer as $nutzer) {
+    echo "Nutzer-ID: {$nutzer['id']}, Name: {$nutzer['name']}\n";
+}
+```
+*Beschreibung*: Hier werden Nutzer gefiltert, die den Status `aktiv` haben.
 
-- `with('autor', 'rex_user', 'id', 'autor_id')`: Diese Zeile definiert die Relation. Der erste Parameter `autor` ist der Name der Relation, `rex_user` ist der Name der verknüpften Tabelle, `id` ist der Primärschlüssel in der `rex_user`-Tabelle und `autor_id` ist der Fremdschlüssel in der `artikel`-Tabelle.
-- `findAll()`: Diese Methode ruft alle Artikel aus der `artikel`-Tabelle ab. Dank der definierten Relation werden auch die entsprechenden Autorendaten geladen.
-- Innerhalb der `foreach`-Schleife greifen Sie auf die Artikel- und Autorendaten zu. Beachten Sie, dass die Autorendaten als Array von Arrays vorliegen, daher verwenden Sie `[0]` um auf den ersten (und in diesem Fall einzigen) Autor zuzugreifen.
+#### Beispiel 3: Kombinieren von Daten mit Join
+```php
+$orm = new skOrm('bestellungen');
+$bestellungenMitKunden = $orm->select(['bestellungen.id', 'kunden.name'])
+                             ->leftJoin('kunden', 'bestellungen.kunde_id = kunden.id')
+                             ->get();
+foreach ($bestellungenMitKunden as $bestellung) {
+    echo "Bestell-ID: {$bestellung['id']}, Kunde: {$bestellung['name']}\n";
+}
+```
+*Beschreibung*: In diesem Beispiel werden Bestellungen mit den dazugehörigen Kundennamen durch einen Left Join abgerufen.
 
-Dieses Beispiel demonstriert, wie die `skOrm`-Klasse verwendet werden kann, um Beziehungen zwischen Tabellen in REDAXO zu handhaben und abzufragen.
+#### Beispiel 4: Paginierung von Datensätzen
+```php
+$orm = new skOrm('produkte');
+$seite = 2;
+$produkteProSeite = 10;
+$paginierteProdukte = $orm->paginate($seite, $produkteProSeite);
+echo "Seite {$seite} von {$paginierteProdukte['lastPage']}\n";
+foreach ($paginierteProdukte['data'] as $produkt) {
+    echo "Produkt-ID: {$produkt['id']}, Name: {$produkt['name']}\n";
+}
+```
+*Beschreibung*: Dieses Beispiel zeigt, wie man Produkte paginiert abfragt. Hier werden die Produkte auf der zweiten Seite mit 10 Produkten pro Seite dargestellt.
+
+#### Beispiel 5: Aktualisieren von Datensätzen
+```php
+$orm = new skOrm('mitarbeiter');
+$orm->where('abteilung', '=', 'Marketing')
+    ->update(['status' => 'im Urlaub']);
+echo "Alle Mitarbeiter in der Marketing-Abteilung sind nun im Urlaub.";
+```
+*Beschreibung*: Hier werden alle Mitarbeiter der Marketing-Abteilung auf den Status `im Urlaub` gesetzt.
+
