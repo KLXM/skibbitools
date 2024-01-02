@@ -149,3 +149,25 @@ echo "Alle Mitarbeiter in der Marketing-Abteilung sind nun im Urlaub.";
 ```
 *Beschreibung*: Hier werden alle Mitarbeiter der Marketing-Abteilung auf den Status `im Urlaub` gesetzt.
 
+
+#### Beispiel 6 : Aktualisieren von E-Mail-Adressen
+In diesem Beispiel wird die Methode `searchAndReplace` verwendet, um in der Tabelle `nutzer` alle E-Mail-Adressen zu aktualisieren, die mit einer bestimmten Domain enden.
+
+```php
+$orm = new skOrm('nutzer');
+$alteDomain = '@alte-domain.de';
+$neueDomain = '@neue-domain.de';
+
+// Suche nach Nutzern mit der alten Domain und ersetze sie durch die neue Domain
+$betroffeneNutzer = $orm->searchAndReplace(['email'], $alteDomain, $neueDomain);
+
+echo "Aktualisierte Nutzer-IDs: " . implode(', ', $betroffeneNutzer) . "\n";
+```
+
+*Beschreibung*: 
+- Die Methode `searchAndReplace` wird aufgerufen, wobei als Parameter die zu durchsuchende Spalte (`email`), der zu suchende String (`@alte-domain.de`) und der Ersatzstring (`@neue-domain.de`) übergeben werden.
+- Die Methode durchsucht alle `email`-Spaltenwerte in der Tabelle `nutzer`, findet diejenigen, die `@alte-domain.de` enthalten, und ersetzt diesen Teil des Strings durch `@neue-domain.de`.
+- Die IDs der betroffenen Nutzer werden zurückgegeben und ausgegeben.
+
+### Zusammenfassung
+Dieses Beispiel zeigt, wie man die `searchAndReplace`-Methode der `skOrm`-Klasse nutzen kann, um spezifische Teile von Daten in einer Datenbanktabelle zu suchen und zu ersetzen. Es ist besonders nützlich für Massenaktualisierungen, wie z.B. das Ändern von E-Mail-Domainnamen in Nutzerdaten.
