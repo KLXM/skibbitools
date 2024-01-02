@@ -11,6 +11,7 @@ class skOrm
     protected array $selectedColumns = [];
     protected array $joins = [];
     protected int $limit = 0;
+    protected int $offset = 0;
     protected int $dbIndex = 1;
 
     public function __construct(string $tableName)
