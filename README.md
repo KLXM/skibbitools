@@ -3,7 +3,7 @@ Skibbi's experiments for REDAXO cms
 
 ## skOrm
 
-Die Klasse `skOrm` ist ein benutzerdefinierter Objekt-Relationaler Mapper (ORM), der für die Interaktion mit Datenbanken in REDAXO 5.x verwendet werden kann. Sie bietet eine Vielzahl von Methoden zur Verwaltung von Datenbankoperationen wie Abfragen, Einfügen, Aktualisieren und Löschen von Datensätzen. Hier ist eine detaillierte Dokumentation mit Beispielen für die wichtigsten Methoden der Klasse `skOrm`.
+Die Klasse `skOrm` ist ein Objekt-Relationaler Mapper (ORM), der für die Interaktion mit Datenbanken in REDAXO 5.x verwendet werden kann. Sie bietet Methoden zur Verwaltung von Datenbankoperationen wie Abfragen, Einfügen, Aktualisieren und Löschen von Datensätzen.
 
 ### Konstruktor
 
