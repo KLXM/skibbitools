@@ -169,5 +169,28 @@ echo "Aktualisierte Nutzer-IDs: " . implode(', ', $betroffeneNutzer) . "\n";
 - Die Methode durchsucht alle `email`-Spaltenwerte in der Tabelle `nutzer`, findet diejenigen, die `@alte-domain.de` enthalten, und ersetzt diesen Teil des Strings durch `@neue-domain.de`.
 - Die IDs der betroffenen Nutzer werden zurückgegeben und ausgegeben.
 
-### Zusammenfassung
-Dieses Beispiel zeigt, wie man die `searchAndReplace`-Methode der `skOrm`-Klasse nutzen kann, um spezifische Teile von Daten in einer Datenbanktabelle zu suchen und zu ersetzen. Es ist besonders nützlich für Massenaktualisierungen, wie z.B. das Ändern von E-Mail-Domainnamen in Nutzerdaten.
+### Beispiel 7:  Verwendung von `whereInList` in `skOrm`
+
+In diesem Beispiel wird gezeigt, wie man die `whereInList`-Methode der `skOrm`-Klasse verwendet, um Datensätze zu filtern, deren Spaltenwerte in einer bestimmten Liste von Werten vorkommen.
+
+#### Beispiel: Filtern von Nutzern nach mehreren IDs
+
+Angenommen, wir möchten Nutzerdaten aus der Tabelle `nutzer` abrufen, aber nur für bestimmte Nutzer-IDs.
+
+```php
+$orm = new skOrm('nutzer');
+$gesuchteIds = [1, 3, 5, 7]; // Liste der gesuchten Nutzer-IDs
+
+$gefilterteNutzer = $orm->whereInList('id', $gesuchteIds)->get();
+
+foreach ($gefilterteNutzer as $nutzer) {
+    echo "Nutzer-ID: {$nutzer['id']}, Name: {$nutzer['name']}\n";
+}
+```
+
+*Beschreibung*:
+- Die `whereInList`-Methode wird verwendet, um eine Bedingung zu erstellen, die die `id`-Spalte der Tabelle `nutzer` mit den Werten in der Liste `$gesuchteIds` abgleicht.
+- Die Methode baut eine SQL-Abfrage auf, die nur die Datensätze zurückgibt, deren `id` in der angegebenen Liste enthalten ist.
+- Das Ergebnis wird dann durchlaufen, und die ID und der Name jedes gefilterten Nutzers werden ausgegeben.
+
+
