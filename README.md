@@ -169,7 +169,7 @@ echo "Aktualisierte Nutzer-IDs: " . implode(', ', $betroffeneNutzer) . "\n";
 - Die Methode durchsucht alle `email`-Spaltenwerte in der Tabelle `nutzer`, findet diejenigen, die `@alte-domain.de` enthalten, und ersetzt diesen Teil des Strings durch `@neue-domain.de`.
 - Die IDs der betroffenen Nutzer werden zurückgegeben und ausgegeben.
 
-### Beispiel 7:  Verwendung von `whereInList` in `skOrm`
+#### Beispiel 7:  Verwendung von `whereInList` in `skOrm`
 
 In diesem Beispiel wird gezeigt, wie man die `whereInList`-Methode der `skOrm`-Klasse verwendet, um Datensätze zu filtern, deren Spaltenwerte in einer bestimmten Liste von Werten vorkommen.
 
