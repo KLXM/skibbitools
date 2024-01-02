@@ -10,6 +10,7 @@ class skOrm
     protected array $orderByConditions = [];
     protected array $selectedColumns = [];
     protected array $joins = [];
+    protected int $limit = 0;
     protected int $dbIndex = 1;
 
     public function __construct(string $tableName)
@@ -39,7 +40,6 @@ class skOrm
             $query .= " $join";
         }
 
-
         if (!empty($this->whereConditions)) {
             $whereString = implode(' AND ', $this->whereConditions);
             $query .= " WHERE $whereString";
@@ -53,6 +53,10 @@ class skOrm
         if (!empty($this->orderByConditions)) {
             $orderByString = implode(', ', $this->orderByConditions);
             $query .= " ORDER BY $orderByString";
+        }
+
+        if ($this->limit > 0) {
+            $query .= " LIMIT {$this->offset}, {$this->limit}";
         }
 
         return $query;
@@ -197,6 +201,31 @@ class skOrm
         $this->whereRaw("CONCAT(',', $column, ',') REGEXP ',(" . $regexp . "),'");
 
         return $this;
+    }
+
+     public function limit(int $limit, int $offset = 0): self {
+        $this->limit = $limit;
+        $this->offset = $offset;
+        return $this;
+    }
+
+      public function paginate(int $page, int $perPage): array {
+        $offset = ($page - 1) * $perPage;
+        $this->limit($perPage, $offset);
+
+        $totalQuery = $this->buildSelectQuery('COUNT(*)');
+        $total = rex_sql::factory()->setQuery($totalQuery)->getArray()[0]['COUNT(*)'];
+
+        // Holt die paginierten Daten
+        $data = $this->get();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'perPage' => $perPage,
+            'currentPage' => $page,
+            'lastPage' => ceil($total / $perPage)
+        ];
     }
 
     protected function applyWhereConditions(rex_sql $sql): void
