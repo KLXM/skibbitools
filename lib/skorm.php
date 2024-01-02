@@ -9,6 +9,7 @@ class skOrm
     protected array $relations = [];
     protected array $orderByConditions = [];
     protected array $selectedColumns = [];
+    protected array $joins = [];
     protected int $dbIndex = 1;
 
     public function __construct(string $tableName)
@@ -29,12 +30,25 @@ class skOrm
 
     private function buildSelectQuery(string $conditionString = '', array $params = []): string
     {
+
         $selectColumns = empty($this->selectedColumns) ? '*' : implode(', ', $this->selectedColumns);
         $query = "SELECT $selectColumns FROM {$this->tableName}";
 
-        if ($conditionString) {
-            $query .= " WHERE $conditionString";
+
+        foreach ($this->joins as $join) {
+            $query .= " $join";
         }
+
+
+        if (!empty($this->whereConditions)) {
+            $whereString = implode(' AND ', $this->whereConditions);
+            $query .= " WHERE $whereString";
+        }
+
+        if ($conditionString) {
+            $query .= $this->whereConditions ? " AND $conditionString" : " WHERE $conditionString";
+        }
+
 
         if (!empty($this->orderByConditions)) {
             $orderByString = implode(', ', $this->orderByConditions);
@@ -204,6 +218,27 @@ class skOrm
         $this->selectedColumns = $columns;
         return $this;
     }
+
+    public function innerJoin(string $table, string $on): self
+    {
+        $this->joins[] = "INNER JOIN $table ON $on";
+        return $this;
+    }
+
+
+    public function leftJoin(string $table, string $on): self
+    {
+        $this->joins[] = "LEFT JOIN $table ON $on";
+        return $this;
+    }
+
+
+    public function rightJoin(string $table, string $on): self
+    {
+        $this->joins[] = "RIGHT JOIN $table ON $on";
+        return $this;
+    }
+
 
     public function get(): array
     {
