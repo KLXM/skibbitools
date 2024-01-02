@@ -3,194 +3,148 @@ Skibbi's experiments for REDAXO cms
 
 ## skOrm
 
-### Kleises experimentelles ORM für REDAXO rex_sql
+Die `skOrm`-Klasse dient als objektorientierte Abstraktionsschicht für Datenbankoperationen in REDAXO-Projekten. Sie vereinfacht die Interaktion mit der Datenbank, indem sie komplexe SQL-Abfragen und Operationen hinter einer klaren und intuitiven API verbirgt. Diese Klasse ermöglicht es Entwicklern, effizienter und fehlerfreier mit der Datenbank zu interagieren, ohne sich um die Details der zugrunde liegenden SQL-Syntax kümmern zu müssen.
 
-#### Kategorisierung der Methoden
-1. **Initialisierung und Konfiguration**
-2. **CRUD-Operationen**
-3. **Such- und Filtermethoden**
-4. **Aggregations- und Hilfsmethoden**
-5. **Relationen und Joins**
-6. **Query-Building und Modifikationen**
+## Einfaches Anwendungsbeispiel
 
-#### 1. Initialisierung und Konfiguration
-- **Konstruktor (`__construct`)**: Initialisiert die Klasse mit dem Namen der Datenbanktabelle.
-  ```php
-  $orm = new skOrm('meine_tabelle');
-  ```
-- **Datenbank-Index setzen (`setDbIndex`)**: Legt den Index der zu verwendenden Datenbank fest.
-  ```php
-  $orm->setDbIndex(2);
-  ```
+### Einsatz der `findAll`-Methode
 
-#### 2. CRUD-Operationen
-- **Laden (`load`)**: Lädt einen Datensatz anhand seiner ID.
-  ```php
-  $daten = $orm->load(1);
-  ```
-- **Alle finden (`findAll`)**: Ruft alle Datensätze aus der Tabelle ab.
-  ```php
-  $alleDaten = $orm->findAll();
-  ```
-- **Einfügen (`insert`)**: Fügt einen neuen Datensatz in die Tabelle ein.
-  ```php
-  $id = $orm->insert(['spalte1' => 'wert1', 'spalte2' => 'wert2']);
-  ```
-- **Aktualisieren (`update`)**: Aktualisiert Datensätze basierend auf festgelegten Bedingungen.
-  ```php
-  $orm->where('id', '=', 1)->update(['spalte1' => 'neuerWert']);
-  ```
-- **Löschen (`delete`)**: Löscht Datensätze basierend auf festgelegten Bedingungen.
-  ```php
-  $orm->where('id', '=', 1)->delete();
-  ```
-
-#### 3. Such- und Filtermethoden
-- **Bedingungen setzen (`where`, `whereRaw`, `whereInList`)**: Ermöglicht das Filtern von Daten anhand spezifischer Bedingungen.
-  ```php
-  $gefilterteDaten = $orm->where('spalte', '=', 'wert')->get();
-  ```
-- **Suchen und Ersetzen (`searchAndReplace`)**: Sucht nach einem String in bestimmten Spalten und ersetzt ihn.
-  ```php
-  $betroffeneZeilen = $orm->searchAndReplace(['spalte1'], 'suche', 'ersetze');
-  ```
-- **Nach String suchen (`searchByString`)**: Findet Datensätze, die einen bestimmten String enthalten.
-  ```php
-  $suchergebnisse = $orm->searchByString(['spalte1', 'spalte2'], 'suchString');
-  ```
-
-#### 4. Aggregations- und Hilfsmethoden
-- **Zählen (`count`)**: Zählt die Anzahl der Datensätze, die den festgelegten Bedingungen entsprechen.
-  ```php
-  $anzahl = $orm->where('spalte', '=', 'wert')->count();
-  ```
-- **Paginierung (`paginate`)**: Unterstützt das Paginieren von Datensätzen.
-  ```php
-  $seitenDaten = $orm->paginate(1, 10);
-  ```
-
-#### 5. Relationen und Joins
-- **Relationen hinzufügen (`with`)**: Bindet verwandte Datensätze aus einer anderen Tabelle ein.
-  ```php
-  $datenMitRelation = $orm->with('relationName', 'andere_tabelle', 'fremdschluessel')->get();
-  ```
-- **Join-Methoden (`innerJoin`, `leftJoin`, `rightJoin`)**: Erlauben die Kombination von Daten aus verschiedenen Tabellen.
-  ```php
-  $ergebnisse = $orm->select(['t1.spalte', 't2.andereSpalte'])->leftJoin('andere_tabelle', 't1.id = t2.foreign_id')->get();
-  ```
-
-#### 6. Query-Building und Modifikationen
-- **Selektieren (`select`)**: Spezifiziert, welche Spalten abgerufen werden sollen.
-  ```php
-  $spezifischeDaten = $orm->select(['spalte1', 'spalte2'])->get();
-  ```
-- **Sortierung (`orderBy`)**: Sortiert die Ergebnisse anhand einer bestimmten Spalte.
-  ```php
-  $sortierteDaten = $orm->orderBy('spalte', 'DESC')->get();
-  ```
-- **Limit und Offset setzen (`limit`)**: Begrenzt die Anzahl der zurückgegebenen Datensätze.
-  ```php
-  $limitierteDaten = $orm->limit(10, 5)->get();
-  ```
-
-## Praxisbeispiele
-
-#### Beispiel 1: Einfaches Abrufen von Daten
-```php
-$orm = new skOrm('artikel');
-$alleArtikel = $orm->findAll();
-foreach ($alleArtikel as $artikel) {
-    echo "Artikel-ID: {$artikel['id']}, Titel: {$artikel['titel']}\n";
-}
-```
-*Beschreibung*: Dieses Beispiel zeigt, wie man alle Datensätze aus der Tabelle `artikel` abruft und durchläuft.
-
-#### Beispiel 2: Gezielte Abfrage mit Bedingungen
+#### Mit `skOrm`:
 ```php
 $orm = new skOrm('nutzer');
-$aktiveNutzer = $orm->where('status', '=', 'aktiv')->get();
-foreach ($aktiveNutzer as $nutzer) {
-    echo "Nutzer-ID: {$nutzer['id']}, Name: {$nutzer['name']}\n";
-}
+$alleNutzer = $orm->findAll();
 ```
-*Beschreibung*: Hier werden Nutzer gefiltert, die den Status `aktiv` haben.
+Diese Methode ruft alle Datensätze aus der Tabelle `nutzer` ab.
 
-#### Beispiel 3: Kombinieren von Daten mit Join
+#### Alternative mit `rex_sql::factory`:
 ```php
-$orm = new skOrm('bestellungen');
-$bestellungenMitKunden = $orm->select(['bestellungen.id', 'kunden.name'])
-                             ->leftJoin('kunden', 'bestellungen.kunde_id = kunden.id')
-                             ->get();
-foreach ($bestellungenMitKunden as $bestellung) {
-    echo "Bestell-ID: {$bestellung['id']}, Kunde: {$bestellung['name']}\n";
-}
+$sql = rex_sql::factory();
+$sql->setQuery('SELECT * FROM nutzer');
+$alleNutzer = $sql->getArray();
 ```
-*Beschreibung*: In diesem Beispiel werden Bestellungen mit den dazugehörigen Kundennamen durch einen Left Join abgerufen.
 
-#### Beispiel 4: Paginierung von Datensätzen
+## Methodenübersicht und Beispiele
+
+### CRUD-Operationen
+
+#### 1. Einfügen (`insert`)
+Ermöglicht das Einfügen neuer Datensätze.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$neueId = $orm->insert(['name' => 'Max', 'email' => 'max@example.com']);
+```
+Mit `rex_sql::factory`:
+```php
+$sql = rex_sql::factory();
+$sql->setTable('nutzer');
+$sql->setValue('name', 'Max');
+$sql->setValue('email', 'max@example.com');
+$sql->insert();
+```
+
+#### 2. Lesen (`load`, `findAll`, `getOne`)
+Zum Abrufen von Datensätzen aus der Datenbank.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$nutzer = $orm->load(1); // Lädt Nutzer mit ID 1
+```
+Mit `rex_sql::factory`:
+```php
+$sql = rex_sql::factory();
+$sql->setQuery('SELECT * FROM nutzer WHERE id = 1');
+$nutzer = $sql->getArray()[0];
+```
+
+#### 3. Aktualisieren (`update`)
+Aktualisiert vorhandene Datensätze.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$orm->where('id', '=', 1)->update(['name' => 'Maximilian']);
+```
+Mit `rex_sql::factory`:
+```php
+$sql = rex_sql::factory();
+$sql->setTable('nutzer');
+$sql->setWhere(['id' => 1]);
+$sql->setValue('name', 'Maximilian');
+$sql->update();
+```
+
+#### 4. Löschen (`delete`)
+Entfernt Datensätze aus der Datenbank.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$orm->where('id', '=', 1)->delete();
+```
+Mit `rex_sql::factory`:
+```php
+$sql = rex_sql::factory();
+$sql->setTable('nutzer');
+$sql->setWhere(['id' => 1]);
+$sql->delete();
+```
+
+### Weitere Methoden
+
+#### 1. Suchen und Ersetzen (`searchAndReplace`)
+Ermöglicht das Suchen und Ersetzen von Daten in der Datenbank.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$orm->searchAndReplace(['email'], '@alte-domain.de', '@neue-domain.de');
+```
+Mit `rex_sql::factory` wäre dies komplexer und erfordert manuelle Iteration und Update für jeden Datensatz.
+
+#### 2. Paginierung (`paginate`)
+Unterstützt das Paginieren von Daten.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$ergebnisse = $orm->paginate(2, 10); // Seite 2, 10 Einträge pro Seite
+```
+Mit `rex_sql::factory` muss dies manuell durch Berechnung des Offsets und Limits in der Abfrage erfolgen.
+
+#### 3. Spaltenzusammenführung (`concatFields`)
+Zum Kombinieren mehrerer Spalten oder Werte in einem SQL-Query.
+
+##### Beispiel:
+```php
+$orm = new skOrm('nutzer');
+$orm->concatFields(['vorname', '{ }', 'nachname'], 'voller_name')->get();
+```
+Mit `rex_sql::factory` müsste dies direkt in der SQL-Abfrage formuliert werden, z.B. durch manuelles Schreiben der `CONCAT`-Funktion.
+
+## Umfangreiches Fallbeispiel
+
+Ein umfangreiches Beispiel, das mehrere Methoden kombiniert, könnte wie folgt aussehen:
+
 ```php
 $orm = new skOrm('produkte');
-$seite = 2;
-$produkteProSeite = 10;
-$paginierteProdukte = $orm->paginate($seite, $produkteProSeite);
-echo "Seite {$seite} von {$paginierteProdukte['lastPage']}\n";
-foreach ($paginierteProdukte['data'] as $produkt) {
-    echo "Produkt-ID: {$produkt['id']}, Name: {$produkt['name']}\n";
-}
-```
-*Beschreibung*: Dieses Beispiel zeigt, wie man Produkte paginiert abfragt. Hier werden die Produkte auf der zweiten Seite mit 10 Produkten pro Seite dargestellt.
+$orm->where('kategorie', '=', 'Bücher')
+    ->orderBy('preis', 'ASC')
+    ->limit(10)
+    ->concatFields(['titel', '{ - }', 'autor'], 'produkt_info');
 
-#### Beispiel 5: Aktualisieren von Datensätzen
-```php
-$orm = new skOrm('mitarbeiter');
-$orm->where('abteilung', '=', 'Marketing')
-    ->update(['status' => 'im Urlaub']);
-echo "Alle Mitarbeiter in der Marketing-Abteilung sind nun im Urlaub.";
-```
-*Beschreibung*: Hier werden alle Mitarbeiter der Marketing-Abteilung auf den Status `im Urlaub` gesetzt.
+$produkte = $orm->get();
 
-
-#### Beispiel 6 : Aktualisieren von E-Mail-Adressen
-In diesem Beispiel wird die Methode `searchAndReplace` verwendet, um in der Tabelle `nutzer` alle E-Mail-Adressen zu aktualisieren, die mit einer bestimmten Domain enden.
-
-```php
-$orm = new skOrm('nutzer');
-$alteDomain = '@alte-domain.de';
-$neueDomain = '@neue-domain.de';
-
-// Suche nach Nutzern mit der alten Domain und ersetze sie durch die neue Domain
-$betroffeneNutzer = $orm->searchAndReplace(['email'], $alteDomain, $neueDomain);
-
-echo "Aktualisierte Nutzer-IDs: " . implode(', ', $betroffeneNutzer) . "\n";
-```
-
-*Beschreibung*: 
-- Die Methode `searchAndReplace` wird aufgerufen, wobei als Parameter die zu durchsuchende Spalte (`email`), der zu suchende String (`@alte-domain.de`) und der Ersatzstring (`@neue-domain.de`) übergeben werden.
-- Die Methode durchsucht alle `email`-Spaltenwerte in der Tabelle `nutzer`, findet diejenigen, die `@alte-domain.de` enthalten, und ersetzt diesen Teil des Strings durch `@neue-domain.de`.
-- Die IDs der betroffenen Nutzer werden zurückgegeben und ausgegeben.
-
-#### Beispiel 7:  Verwendung von `whereInList` in `skOrm`
-
-In diesem Beispiel wird gezeigt, wie man die `whereInList`-Methode der `skOrm`-Klasse verwendet, um Datensätze zu filtern, deren Spaltenwerte in einer bestimmten Liste von Werten vorkommen.
-
-#### Beispiel: Filtern von Nutzern nach mehreren IDs
-
-Angenommen, wir möchten Nutzerdaten aus der Tabelle `nutzer` abrufen, aber nur für bestimmte Nutzer-IDs.
-
-```php
-$orm = new skOrm('nutzer');
-$gesuchteIds = [1, 3, 5, 7]; // Liste der gesuchten Nutzer-IDs
-
-$gefilterteNutzer = $orm->whereInList('id', $gesuchteIds)->get();
-
-foreach ($gefilterteNutzer as $nutzer) {
-    echo "Nutzer-ID: {$nutzer['id']}, Name: {$nutzer['name']}\n";
+foreach ($produkte as $produkt) {
+    echo "Produkt: {$produkt['produkt_info']}, Preis: {$produkt['preis']}\n";
 }
 ```
 
-*Beschreibung*:
-- Die `whereInList`-Methode wird verwendet, um eine Bedingung zu erstellen, die die `id`-Spalte der Tabelle `nutzer` mit den Werten in der Liste `$gesuchteIds` abgleicht.
-- Die Methode baut eine SQL-Abfrage auf, die nur die Datensätze zurückgibt, deren `id` in der angegebenen Liste enthalten ist.
-- Das Ergebnis wird dann durchlaufen, und die ID und der Name jedes gefilterten Nutzers werden ausgegeben.
-
-
+In diesem Beispiel:
+- Wir filtern Produkte in der Kategorie 'Bücher'.
+- Sortieren diese nach Preis aufsteigend.
+- Begrenzen die Ergebnisse auf 10 Einträge.
+- Fügen `titel` und `autor` zu einem Feld `produkt_info` zusammen.
+- Das Ergebnis ist eine Liste von Produkten mit kombinierten Informationen und Preis.
