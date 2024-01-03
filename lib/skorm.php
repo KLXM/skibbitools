@@ -328,4 +328,32 @@ class skOrm
         ];
         return $this;
     }
+
+    public function toRexList(array $columnHeadings = []): rex_list
+    {
+        // Liest Sortierparameter aus der URL
+        $sortColumn = rex_request('sort', 'string', $this->defaultSortColumn);
+        $sortType = rex_request('sorttype', 'string', $this->defaultSortDirection);
+
+        // Setzt die Sortierung, wenn der Spaltenname gültig ist
+        if (in_array($sortColumn, $this->selectedColumns)) {
+            $this->orderBy($sortColumn, strtoupper($sortType) === 'DESC' ? 'DESC' : 'ASC');
+        } else {
+            $this->defaultOrderBy();
+        }
+
+        $list = rex_list::factory($this->buildSelectQuery());
+
+        // Setzt Standardüberschriften, falls keine angegeben sind
+        if (empty($columnHeadings)) {
+            $columnHeadings = array_combine($this->selectedColumns, $this->selectedColumns);
+        }
+
+        foreach ($columnHeadings as $columnName => $heading) {
+            $list->setColumnLabel($columnName, $heading);
+            $list->setColumnSortable($columnName);
+        }
+        return $list;
+    }
+
 }
