@@ -329,7 +329,7 @@ class skOrm
         return $this;
     }
 
-    public function toRexList(array $columnHeadings = []): rex_list
+    public function toggleSortByUrl(): void 
     {
         // Liest Sortierparameter aus der URL
         $sortColumn = rex_request('sort', 'string', $this->defaultSortColumn);
@@ -341,7 +341,10 @@ class skOrm
         } else {
             $this->defaultOrderBy();
         }
-
+    }
+    
+    public function toRexList(array $columnHeadings = []): rex_list
+    {
         $list = rex_list::factory($this->buildSelectQuery());
 
         // Setzt Standardüberschriften, falls keine angegeben sind
