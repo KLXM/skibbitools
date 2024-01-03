@@ -189,10 +189,20 @@ class skOrm
 
 
 
-    public function where(string $column, string $operator, $value): self
-    {
-        $this->whereConditions[] = "{$column} {$operator} :{$column}";
-        $this->whereBindings[$column] = $value;
+     public function where(string $column, string $operator, $value, string $type = 'AND'): self {
+        // Bereitet die Bedingung vor.
+        $paramKey = strtolower($type) . ucfirst($column);
+        $condition = "{$column} {$operator} :{$paramKey}";
+
+        if ($type === 'NOT') {
+            $condition = "NOT {$condition}";
+        }
+        if (count($this->whereConditions) > 0) {
+            $this->whereConditions[] = ($type !== 'NOT' ? "$type " : '') . $condition;
+        } else {
+            $this->whereConditions[] = $condition;
+        }
+        $this->whereBindings[$paramKey] = $value;
         return $this;
     }
 
