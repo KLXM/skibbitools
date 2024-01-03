@@ -181,9 +181,24 @@ $orm->concatFields(['vorname', '{ }', 'nachname'], 'voller_name')->get();
 ```
 Mit `rex_sql::factory` müsste dies direkt in der SQL-Abfrage formuliert werden, z.B. durch manuelles Schreiben der `CONCAT`-Funktion.
 
-## Umfangreiches Fallbeispiel
+## Anwendungsbeispiele
 
-Ein umfangreiches Beispiel, das mehrere Methoden kombiniert, könnte wie folgt aussehen:
+### Beispiel 1: Grundlegendes Laden von Daten
+
+```php
+// Instanziieren der skOrm-Klasse für eine Tabelle 'meine_tabelle'
+$skOrm = new skOrm('meine_tabelle');
+
+// Daten für einen bestimmten Eintrag mit der ID 1 laden
+$daten = $skOrm->load(1);
+
+// Ausgeben der Daten
+echo '<pre>';
+print_r($daten);
+echo '</pre>';
+```
+
+### Beispiel 2: Mehere Methoden kombiniert. 
 
 ```php
 $orm = new skOrm('produkte');
@@ -205,3 +220,145 @@ In diesem Beispiel:
 - Begrenzen die Ergebnisse auf 10 Einträge.
 - Fügen `titel` und `autor` zu einem Feld `produkt_info` zusammen.
 - Das Ergebnis ist eine Liste von Produkten mit kombinierten Informationen und Preis.
+
+### Beispiel 3: Suchen und Ersetzen in mehreren Spalten
+
+```php
+// skOrm-Instanz für die Tabelle 'blog_posts' erstellen
+$skOrm = new skOrm('blog_posts');
+
+// Suchen und Ersetzen in den Spalten 'title' und 'content'
+$suchString = 'alterText';
+$ersatzString = 'neuerText';
+$skOrm->searchAndReplace(['title', 'content'], $suchString, $ersatzString);
+```
+
+### Beispiel 4: Erstellen einer sortierbaren rex_list
+
+```php
+// skOrm-Instanz für die Tabelle 'mitarbeiter' erstellen
+$skOrm = new skOrm('mitarbeiter');
+
+// Konfiguration für die rex_list
+$columnHeadings = [
+    'id' => 'ID',
+    'name' => 'Name',
+    'position' => 'Position'
+];
+
+// Erstellen der rex_list mit automatischer Sortierung
+$rexList = $skOrm->toRexList($columnHeadings);
+
+// Ausgabe der rex_list
+echo $rexList->get();
+```
+
+### Beispiel 5: Einfügen neuer Daten in die Datenbank
+
+```php
+// skOrm-Instanz für die Tabelle 'kunden' erstellen
+$skOrm = new skOrm('kunden');
+
+// Daten für einen neuen Kunden
+$neuerKunde = [
+    'name' => 'Max Mustermann',
+    'email' => 'max@example.com',
+    'adresse' => 'Musterstraße 1, 12345 Musterstadt'
+];
+
+// Einfügen des neuen Kunden in die Datenbank
+$kundenId = $skOrm->insert($neuerKunde);
+
+echo "Neuer Kunde wurde hinzugefügt mit der ID: $kundenId";
+```
+
+### Beispiel 5: Aktualisieren eines Datensatzes
+
+```php
+// skOrm-Instanz für die Tabelle 'produkte' erstellen
+$skOrm = new skOrm('produkte');
+
+// Daten für die Aktualisierung eines Produkts
+$aktualisierteDaten = [
+    'name' => 'Neuer Produktname',
+    'preis' => 19.99
+];
+
+// Produkt mit der ID 3 aktualisieren
+$skOrm->where('id', '=', 3)->update($aktualisierteDaten);
+
+echo "Produkt mit der ID 3 wurde aktualisiert.";
+```
+
+### Beispiel 6: Löschen eines Datensatzes
+
+```php
+// skOrm-Instanz für die Tabelle 'bestellungen' erstellen
+$skOrm = new skOrm('bestellungen');
+
+// Bestellung mit der ID 5 löschen
+$skOrm->where('id', '=', 5)->delete();
+
+echo "Bestellung mit der ID 5 wurde gelöscht.";
+```
+
+### Beispiel 7: Abrufen und Paginieren von Daten
+
+```php
+// skOrm-Instanz für die Tabelle 'nachrichten' erstellen
+$skOrm = new skOrm('nachrichten');
+
+// Abrufen von Daten mit Pagination
+$seite = 1;
+$proSeite = 10;
+$paginierteDaten = $skOrm->paginate($seite, $proSeite);
+
+echo '<pre>';
+print_r($paginierteDaten);
+echo '</pre>';
+```
+
+### Beispiel 8: Durchführen einer komplexen Abfrage mit Join
+
+```php
+// skOrm-Instanz für die Tabelle 'mitarbeiter' erstellen
+$skOrm = new skOrm('mitarbeiter');
+
+// Join mit der Tabelle 'abteilungen'
+$skOrm->leftJoin('abteilungen', 'mitarbeiter.abteilung_id = abteilungen.id')
+      ->select(['mitarbeiter.name', 'abteilungen.bezeichnung']);
+
+// Daten abrufen
+$mitarbeiterMitAbteilungen = $skOrm->get();
+
+echo '<pre>';
+print_r($mitarbeiterMitAbteilungen);
+echo '</pre>';
+```
+
+### Beispiel 9: Auflösen einer Relation zwischen Tabellen
+
+```php
+// skOrm-Instanz für die Tabelle 'mitarbeiter' erstellen
+$skOrm = new skOrm('mitarbeiter');
+
+// Relation zu einer anderen Tabelle, z.B. 'abteilungen', definieren
+$skOrm->with('abteilung', 'abteilungen', 'abteilung_id');
+
+// Daten eines bestimmten Mitarbeiters abrufen, einschließlich Abteilungsdetails
+$mitarbeiterId = 1;
+$mitarbeiterMitAbteilung = $skOrm->load($mitarbeiterId);
+
+echo '<pre>';
+print_r($mitarbeiterMitAbteilung);
+echo '</pre>';
+```
+
+In diesem Beispiel:
+
+- Eine Instanz der `skOrm`-Klasse wird für die Tabelle 'mitarbeiter' erstellt.
+- Die `with`-Methode wird verwendet, um eine Relation zur Tabelle 'abteilungen' auf Basis des Fremdschlüssels 'abteilung_id' zu definieren.
+- Die `load`-Methode wird aufgerufen, um die Daten eines bestimmten Mitarbeiters zusammen mit den zugehörigen Abteilungsinformationen abzurufen.
+
+Das Ergebnis beinhaltet Informationen über den Mitarbeiter sowie Details zur zugeordneten Abteilung, aufgelöst durch die definierte Relation.
+
