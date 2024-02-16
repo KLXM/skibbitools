@@ -52,7 +52,7 @@ class SkibbiTools
         return $output;
     }
 
-    public static function TruncateText(string $string, $count = 300): string
+    public static function truncateText(string $string, $count = 300): string
     {
         $teaser = rex_escape(strip_tags($string));
         $teaserlen = mb_strlen($teaser);
