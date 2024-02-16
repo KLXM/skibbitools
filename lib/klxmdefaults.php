@@ -1,6 +1,6 @@
 <?php
 
-class skibbiTools
+class SkibbiTools
 {
     public static function cke5LightboxHelper(): void
     {
