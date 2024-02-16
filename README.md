@@ -1,4 +1,4 @@
-# Skibbi's tools
+# SkibbiTools
 Skibbi's experiments for REDAXO cms
 
 Inhalt: 
