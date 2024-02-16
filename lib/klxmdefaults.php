@@ -52,20 +52,28 @@ class skibbiTools
         return $output;
     }
 
-    public static function truncateText(string $string, int $length = 300): string
+    public static function TruncateText(string $string, $count = 300): string
     {
-        $teaser = strip_tags($string);
-        $teaserlen = mb_strlen($string);
-        if ($teaserlen > $length) {
-            $teaser = substr($teaser, 0, strpos($teaser, ".", $length) + 1);
+        $teaser = rex_escape(strip_tags($string));
+        $teaserlen = mb_strlen($teaser);
+        if ($teaserlen > $count) {
+            $dotPosition = strpos($teaser, ".", $count);
+            if ($dotPosition !== false) {
+                // Kürzt bis zum Punkt, wenn einer nach $count gefunden wird
+                $teaser = substr($teaser, 0, $dotPosition + 1);
+            } else {
+                // Kürzt bis zur maximalen Länge, dann weiter bis zum Ende des letzten vollständigen Wortes
+                $teaser = mb_substr($teaser, 0, $count);
+                $lastSpacePosition = mb_strrpos($teaser, " ");
+                if ($lastSpacePosition !== false) {
+                    // Kürzen Sie bis zum letzten Leerzeichen, um das letzte Wort nicht zu zerschneiden
+                    $teaser = mb_substr($teaser, 0, $lastSpacePosition) . '...'; // Optional: "..." hinzufügen
+                }
+            }
         }
-        // END: abpxx6d04wxr
-
-        // FILEPATH: Untitled-1
-        // BEGIN: be15d9bcejpp
         return $teaser;
-        // END: be15d9bcejpp
     }
+
 
     public static function formatGermanDate(string $date): string
     {
