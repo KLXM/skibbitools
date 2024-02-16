@@ -5,7 +5,7 @@ Inhalt:
 
 - Class skibbiTools
 
-## Class skibbiTools 
+## Class SkibbiTools 
 
 Die Klasse `skibbiTools` stellt eine Sammlung von statischen Hilfsfunktionen bereit, die in REDAXO 5.x Projekten verwendet werden können. Diese Funktionen bieten verschiedene Funktionalitäten, von der Bearbeitung von HTML-Inhalten bis hin zur Formatierung und Validierung von Daten.
 
