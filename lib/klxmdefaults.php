@@ -34,7 +34,7 @@ class SkibbiTools
         }
     }
 
-/** 
+/**
  * @param string $file
  * @param string $type
  *  @return string
@@ -57,24 +57,27 @@ class SkibbiTools
     }
 
     /**
-     * @param string $file
-     * @param string $alt
-     * @return string
+     * Liefert den alternativen Text für ein Media-Objekt aus REDAXO.
+     *
+     * @param string $file Der Dateiname des Media-Objekts.
+     * @param string $alt Ein optionaler alternativer Text.
+     * @return string Der alternative Text oder ein leerer String, wenn nicht verfügbar.
      */
     public static function mediaAlt(string $file = '', string $alt = ''): string
     {
-        $output = '';
-        if ($alt != '') {
+        if ($alt !== '') {
             return $alt;
         }
-        if ($media = rex_media::get($file)) {
-            $alt = $media->getValue('med_description');
-            if ($alt !== '') {
-                return $alt;
-            } else {return $output;}
-        }
+
+        $media = rex_media::get($file);
+        return $media ? $media->getValue('med_description') : '';
     }
 
+    /**
+     * @param string $string
+     * @param int $count
+     * @return string
+     */ 
     public static function truncateText(string $string, $count = 300): string
     {
         $teaser = rex_escape(strip_tags($string));
@@ -111,7 +114,7 @@ class SkibbiTools
      * @param string $date
      * @return string
      */
-     public static function checkUrl(?string $url): ?string
+    public static function checkUrl(?string $url): ?string
     {
         if ($url) {
             if (filter_var($url, FILTER_VALIDATE_URL) === false) {
