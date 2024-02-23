@@ -74,10 +74,32 @@ class SkibbiTools
     }
 
     /**
+     * Liefert den Code für die Einbindung von VTT-Dateien für Videos aus REDAXO, falls vorhanden.
+     *
+     * @param string $videoFile Der Dateiname des Video-Objekts im Medienpool.
+     * @return string Der HTML-Code für das <track> Element mit der VTT-Datei oder ein leerer String, wenn nicht verfügbar.
+     */
+    public static function videoSubtitleTrack(string $videoFile): string
+    {
+        // Ersetzt die Video-Dateiendung mit .vtt für die Untertitel-Datei
+        $vttFile = preg_replace('/\.[^.]+$/', '.vtt', $videoFile);
+
+        // Prüft, ob die VTT-Datei im Medienpool existiert
+        $media = rex_media::get($vttFile);
+        if ($media) {
+            // Gibt den HTML-Code für das <track> Element zurück, wenn die VTT-Datei vorhanden ist
+            return '<track kind="subtitles" src="/media/' . $vttFile . '" srclang="de" label="Deutsch">';
+        }
+
+        // Gibt einen leeren String zurück, wenn keine VTT-Datei vorhanden ist
+        return '';
+    }
+
+    /**
      * @param string $string
      * @param int $count
      * @return string
-     */ 
+     */
     public static function truncateText(string $string, $count = 300): string
     {
         $teaser = rex_escape(strip_tags($string));
