@@ -1,4 +1,4 @@
-# SkibbiTools
+# SkibbiTools for REDAXO
 
 Die `SkibbiTools`-Klasse bietet eine Sammlung von nützlichen Hilfsmethoden für die Entwicklung von REDAXO-Webseiten. Diese Methoden umfassen Funktionen zur Arbeit mit Medien, Texten, Daten und URLs, die speziell für die Anforderungen von REDAXO-Projekten angepasst sind.
 
