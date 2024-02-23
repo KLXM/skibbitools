@@ -59,16 +59,3 @@ echo SkibbiTools::formatGermanDate('2020-01-01');
 ```php
 echo SkibbiTools::checkUrl('https://example.com');
 ```
-
-## Installation
-
-Kopieren Sie die `SkibbiTools`-Klasse in Ihr Projekt und binden Sie sie in Ihre PHP-Dateien ein, um die Methoden zu nutzen.
-
-## Lizenz
-
-Diese Klasse ist lizenzfrei nutzbar und modifizierbar. Wir übernehmen keine Haftung für die Funktionsfähigkeit oder für etwaige Schäden durch die Verwendung dieser Klasse.
-
-Für weitere Fragen oder Unterstützung wenden Sie sich bitte an die REDAXO-Community oder die entsprechenden Foren.
-```
-
-Diese README gibt einen Überblick über die Funktionen, die die `SkibbiTools`-Klasse bietet, inklusive kurzer Beschreibungen und Beispiele für jede Methode. Es bietet einen guten Ausgangspunkt für Entwickler, die mit dieser Klasse arbeiten möchten.
