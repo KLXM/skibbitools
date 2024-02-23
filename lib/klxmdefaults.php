@@ -79,7 +79,7 @@ class SkibbiTools
      * @param string $videoFile Der Dateiname des Video-Objekts im Medienpool.
      * @return string Der HTML-Code für das <track> Element mit der VTT-Datei oder ein leerer String, wenn nicht verfügbar.
      */
-    public static function videoSubtitleTrack(string $videoFile): string
+    public static function getVideoSubtitle(string $videoFile): string
     {
         // Ersetzt die Video-Dateiendung mit .vtt für die Untertitel-Datei
         $vttFile = preg_replace('/\.[^.]+$/', '.vtt', $videoFile);
