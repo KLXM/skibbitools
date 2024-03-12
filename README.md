@@ -39,10 +39,10 @@ Liefert den alternativen Text für ein Media-Objekt aus dem Medienpool.
 #### Anwendungsbeispiel
 
 ```php
-echo KLXM\SkibbiTools\Tool::mediaAlt('mein-bild.jpg', 'Alternativer Text');
+echo KLXM\SkibbiTools\Tool::mediaAlt('mein-bild.jpg', 'REX_VALUE[1]');
 ```
 
-Gibt den alternativen Text für das Bild `mein-bild.jpg` aus. Wenn kein alternativer Text angegeben ist, wird der Beschreibungstext des Medienobjekts verwendet.
+Gibt den alternativen Text für das Bild `mein-bild.jpg` aus. Wenn kein alternativer Text z.B. hier in `REX_VALUE[1]` angegeben ist, wird der Beschreibungstext des Medienobjekts verwendet. Ist auch dieser leer wird ein leerer String zurück gegeben. 
 
 ### getVideoSubtitle
 
