@@ -1,10 +1,8 @@
-# Readme für die KLXM\SkibbiTools\Tool-Klasse
+# Readme für die KLXM\SkibbiTools\
 
 Die `KLXM\SkibbiTools\Tool`-Klasse bietet eine Sammlung nützlicher Methoden für die Entwicklung mit REDAXO, darunter Funktionen für Lightbox-Integration, Urheberrechtsinformationen, alternative Texte für Medienobjekte, Video-Untertitel, Textkürzung und Datumsformatierung. Dieses Dokument erläutert, wie Sie diese Methoden in Ihren Projekten anwenden können.
 
-## Voraussetzungen
-
-Um die `KLXM\SkibbiTools\Tool`-Klasse nutzen zu können, müssen Sie REDAXO 5.x installiert haben. Stellen Sie sicher, dass Sie alle Abhängigkeiten installiert haben, die für die Verwendung bestimmter Methoden erforderlich sind, z. B. das `rex_media`-Objekt für Medienverwaltungsfunktionen.
+## Tool-Klasse
 
 ## Methoden
 
