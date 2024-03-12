@@ -8,7 +8,7 @@ use rex_media;
 use rex_path;
 use rex_url;
 
-class Tools
+class Tool
 {
     public static function cke5LightboxHelper(): void
     {
