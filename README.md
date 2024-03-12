@@ -88,4 +88,4 @@ Gibt das Datum `10. März 2023` aus.
 echo KLXM\SkibbiTools\Tool::checkUrl('https://example.com');
 ```
 
-Gibt die überprüfte URL zurück oder `null`, wenn die URL ungültig ist.
+Gibt die überprüfte URL zurück oder `null`, wenn die URL ungültig ist. Handelt es sich um eine Datei aus dem Medienpool oder um einen Artikel, werden die korrekten Urls erzeugt. 
