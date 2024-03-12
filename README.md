@@ -8,7 +8,7 @@ Die `KLXM\SkibbiTools\Tool`-Klasse bietet eine Sammlung nützlicher Methoden fü
 
 ### cke5LightboxHelper
 
-Integriert eine Lightbox-Funktionalität für Bilder, die in einem WYSIWYG-Editor (z.B. CKEditor 5) eingefügt wurden.
+Integriert eine UiKit-Lightbox-Funktionalität für Bilder, die in einem WYSIWYG-Editor (z.B. CKEditor 5) eingefügt wurden.
 
 #### Anwendungsbeispiel
 
