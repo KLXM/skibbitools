@@ -3,9 +3,8 @@ class SkibbiTools
 {
     public static function cke5LightboxHelper(): void
     {
-        if (rex::isFrontend()) {{
+        if (rex::isFrontend()) {
             // Code hier einfügen
-
             rex_extension::register('OUTPUT_FILTER', function (rex_extension_point $ep) {
                 $html = $ep->getSubject();
 
@@ -30,7 +29,6 @@ class SkibbiTools
                 // Setze das geänderte HTML als neues Subjekt
                 $ep->setSubject($html);
             }, rex_extension::LATE);
-        }
         }
     }
 
