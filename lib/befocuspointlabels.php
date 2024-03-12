@@ -1,5 +1,5 @@
 <?php 
-namespace klxm\SkibbiTools;
+namespace KLXM\SkibbiTools;
 
 use rex_extension;
 
