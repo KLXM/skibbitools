@@ -1,4 +1,13 @@
 <?php
+namespace klxm\SkibbiTools;
+
+use rex_extension;
+use rex_extension_point;
+use IntlDateFormatter;
+use rex_media;
+use rex_path;
+use rex_url;
+
 class SkibbiTools
 {
     public static function cke5LightboxHelper(): void
@@ -132,7 +141,7 @@ class SkibbiTools
      */
     public static function formatGermanDate(string $date): string
     {
-        $formatter = new \IntlDateFormatter('de_DE', \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
+        $formatter = new IntlDateFormatter('de_DE', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
         return $formatter->format(strtotime($date));
     }
 
