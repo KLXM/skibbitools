@@ -9,14 +9,14 @@ class SkibbiTools
                 $html = $ep->getSubject();
 
                 // Verwende reguläre Ausdrücke, um verlinkte Bilder im HTML zu finden
-                preg_match_all('/<figure\b[^>]*\bclass\s*=\s*["\'][^"\']*?\bimage\b[^"\']*["\'][^>]*>.*?<a[^>]+href=[\'"]([^\'"]+?\.(jpg|jpeg|png|mp4|gif))[\'"][^>]*><img[^>]+src=[\'"]([^\'"]+?)[\'"][^>]*>.*?<\/figure>/i', $html, $matches, PREG_SET_ORDER);
+                preg_match_all('/<figure\b[^>]*\bclass\s*=\s*["\'][^"\']*?\bimage\b[^"\']*["\'][^>]*>.*?<a[^>]+href=[\'"]([^\'"]+?\.(JPEG|JPG|GIF|PNG|jpg|jpeg|png|mp4|gif))[\'"][^>]*><img[^>]+src=[\'"]([^\'"]+?)[\'"][^>]*>.*?<\/figure>/i', $html, $matches, PREG_SET_ORDER);
 
                 // Durchlaufe alle Treffer
                 foreach ($matches as $match) {
                     // Hole die abgeglichenen Werte
                     $link = $match[0];
                     $href = $match[1];
-                    $ext = $match[2];
+                    $ext = strtolower($match[2]);
                     $src = $match[3];
 
                     // Überprüfe, ob der href-Wert auf .jpg, .jpeg, .png oder .gif endet
@@ -108,7 +108,7 @@ class SkibbiTools
             $exclamationPosition = strpos($teaser, '!', $count);
 
             // Find the earliest position of either punctuation
-            $positions = array_filter([$dotPosition, $questionPosition, $exclamationPosition], function($pos) {
+            $positions = array_filter([$dotPosition, $questionPosition, $exclamationPosition], function ($pos) {
                 return $pos !== false;
             });
 
@@ -142,20 +142,17 @@ class SkibbiTools
      */
     public static function checkUrl(?string $url): ?string
     {
-        if ($url) {
-            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-                return null;
-            }
-            if (file_exists(rex_path::media($url)) === true) {
-                $url = rex_url::media($url);
-            } else {
-                if (filter_var($url, FILTER_VALIDATE_URL) === false && is_numeric($url)) {
-                    $url = rex_getUrl($url);
-                }
-            }
-            $link = $url;
-            return $link;
+        if (!$url || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
         }
-        return null;
+
+        if (file_exists(rex_path::media($url))) {
+            return rex_url::media($url);
+        } elseif (is_numeric($url)) {
+            return rex_getUrl($url);
+        }
+
+        return $url;
     }
+
 }
