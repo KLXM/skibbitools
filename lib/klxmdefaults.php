@@ -102,20 +102,26 @@ class SkibbiTools
      */
     public static function truncateText(string $string, $count = 300): string
     {
-        $teaser = rex_escape(strip_tags($string));
+        $teaser = strip_tags($string);
         $teaserlen = mb_strlen($teaser);
         if ($teaserlen > $count) {
-            $dotPosition = strpos($teaser, ".", $count);
-            if ($dotPosition !== false) {
-                // Kürzt bis zum Punkt, wenn einer nach $count gefunden wird
-                $teaser = substr($teaser, 0, $dotPosition + 1);
+            $dotPosition = strpos($teaser, '.', $count);
+            $questionPosition = strpos($teaser, '?', $count);
+            $exclamationPosition = strpos($teaser, '!', $count);
+
+            // Find the earliest position of either punctuation
+            $positions = array_filter([$dotPosition, $questionPosition, $exclamationPosition], function($pos) {
+                return $pos !== false;
+            });
+
+            if (!empty($positions)) {
+                $earliestPosition = min($positions);
+                $teaser = substr($teaser, 0, $earliestPosition + 1);
             } else {
-                // Kürzt bis zur maximalen Länge, dann weiter bis zum Ende des letzten vollständigen Wortes
                 $teaser = mb_substr($teaser, 0, $count);
-                $lastSpacePosition = mb_strrpos($teaser, " ");
+                $lastSpacePosition = mb_strrpos($teaser, ' ');
                 if ($lastSpacePosition !== false) {
-                    // Kürzen Sie bis zum letzten Leerzeichen, um das letzte Wort nicht zu zerschneiden
-                    $teaser = mb_substr($teaser, 0, $lastSpacePosition) . '...'; // Optional: "..." hinzufügen
+                    $teaser = mb_substr($teaser, 0, $lastSpacePosition) . '...';
                 }
             }
         }
