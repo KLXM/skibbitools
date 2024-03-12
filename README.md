@@ -91,7 +91,3 @@ echo KLXM\SkibbiTools\Tool::checkUrl('https://example.com');
 ```
 
 Gibt die überprüfte URL zurück oder `null`, wenn die URL ungültig ist.
-
-## Fazit
-
-Die `KLXM\SkibbiTools\Tool`-Klasse bietet vielseitige Werkzeuge für die Entwicklung mit REDAXO. Durch die Verwendung dieser Methoden können Sie Ihre Entwicklungsarbeit effizienter gestalten und die Benutzerfreundlichkeit Ihrer Projekte verbessern.
