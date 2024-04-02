@@ -1,12 +1,27 @@
 <?php
+
 namespace KLXM\SkibbiTools;
 
+use IntlDateFormatter;
+use rex;
 use rex_extension;
 use rex_extension_point;
-use IntlDateFormatter;
 use rex_media;
 use rex_path;
 use rex_url;
+
+use function array_filter;
+use function in_array;
+use function mb_strlen;
+use function mb_substr;
+use function min;
+use function preg_match_all;
+use function rex_getUrl;
+use function str_replace;
+use function strip_tags;
+use function strpos;
+use function strtotime;
+use function substr;
 
 class Tool
 {
@@ -14,7 +29,7 @@ class Tool
     {
         if (rex::isFrontend()) {
             // Code hier einfügen
-            rex_extension::register('OUTPUT_FILTER', function (rex_extension_point $ep) {
+            rex_extension::register('OUTPUT_FILTER', static function (rex_extension_point $ep): void {
                 $html = $ep->getSubject();
 
                 // Verwende reguläre Ausdrücke, um verlinkte Bilder im HTML zu finden
@@ -41,23 +56,16 @@ class Tool
         }
     }
 
-/**
- * @param string $file
- * @param string $type
- *  @return string
- */
     public static function mediaCopyright(string $file = '', string $type = 'text'): string
     {
         $output = '';
-        if ($file != '') {
-            if ($media = rex_media::get($file)) {
-                $copyright = $media->getValue('med_copyright');
-                $copyright_link = $media->getValue('med_copyright_link');
-                if ($copyright_link != '' && $type == 'link') {
-                    $output = '<a rel="noopener" href="' . $copyright_link . '">Copyright: ' . $copyright . '</a>';
-                } elseif ($copyright != '') {
-                    $output = 'Copyright: ' . $copyright;
-                }
+        if ($file != '' && ($media = rex_media::get($file))) {
+            $copyright = $media->getValue('med_copyright');
+            $copyright_link = $media->getValue('med_copyright_link');
+            if ($copyright_link != '' && $type === 'link') {
+                $output = '<a rel="noopener" href="' . $copyright_link . '">Copyright: ' . $copyright . '</a>';
+            } elseif ($copyright != '') {
+                $output = 'Copyright: ' . $copyright;
             }
         }
         return $output;
@@ -66,9 +74,9 @@ class Tool
     /**
      * Liefert den alternativen Text für ein Media-Objekt aus REDAXO.
      *
-     * @param string $file Der Dateiname des Media-Objekts.
-     * @param string $alt Ein optionaler alternativer Text.
-     * @return string Der alternative Text oder ein leerer String, wenn nicht verfügbar.
+     * @param string $file der Dateiname des Media-Objekts
+     * @param string $alt ein optionaler alternativer Text
+     * @return string der alternative Text oder ein leerer String, wenn nicht verfügbar
      */
     public static function mediaAlt(string $file = '', string $alt = ''): string
     {
@@ -83,8 +91,8 @@ class Tool
     /**
      * Liefert den Code für die Einbindung von VTT-Dateien für Videos aus REDAXO, falls vorhanden.
      *
-     * @param string $videoFile Der Dateiname des Video-Objekts im Medienpool.
-     * @return string Der HTML-Code für das <track> Element mit der VTT-Datei oder ein leerer String, wenn nicht verfügbar.
+     * @param string $videoFile der Dateiname des Video-Objekts im Medienpool
+     * @return string der HTML-Code für das <track> Element mit der VTT-Datei oder ein leerer String, wenn nicht verfügbar
      */
     public static function getVideoSubtitle(string $videoFile): string
     {
@@ -103,9 +111,7 @@ class Tool
     }
 
     /**
-     * @param string $string
      * @param int $count
-     * @return string
      */
     public static function truncateText(string $string, $count = 300): string
     {
@@ -117,11 +123,11 @@ class Tool
             $exclamationPosition = strpos($teaser, '!', $count);
 
             // Find the earliest position of either punctuation
-            $positions = array_filter([$dotPosition, $questionPosition, $exclamationPosition], function ($pos) {
+            $positions = array_filter([$dotPosition, $questionPosition, $exclamationPosition], static function ($pos): bool {
                 return $pos !== false;
             });
 
-            if (!empty($positions)) {
+            if ($positions !== []) {
                 $earliestPosition = min($positions);
                 $teaser = substr($teaser, 0, $earliestPosition + 1);
             } else {
@@ -135,20 +141,12 @@ class Tool
         return $teaser;
     }
 
-    /**
-     * @param string $date
-     * @return string
-     */
     public static function formatGermanDate(string $date): string
     {
         $formatter = new IntlDateFormatter('de_DE', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
         return $formatter->format(strtotime($date));
     }
 
-    /**
-     * @param string $date
-     * @return string
-     */
     public static function checkUrl(?string $url): ?string
     {
         if (!$url || filter_var($url, FILTER_VALIDATE_URL) === false) {
@@ -157,11 +155,11 @@ class Tool
 
         if (file_exists(rex_path::media($url))) {
             return rex_url::media($url);
-        } elseif (is_numeric($url)) {
+        }
+        if (is_numeric($url)) {
             return rex_getUrl($url);
         }
 
         return $url;
     }
-
 }

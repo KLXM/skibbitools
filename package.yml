@@ -11,4 +11,4 @@ requires:
          navigation_array: '>=1.0.0'
          mform: '>=7.0.0-dev'
          uikit_collection: '>=4.0.0-dev'
-         maintenance: '>=3.0.0-dev'
+         maintenance: '>=2.7.0-dev'
