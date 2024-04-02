@@ -59,7 +59,7 @@ class Tool
     public static function mediaCopyright(string $file = '', string $type = 'text'): string
     {
         $output = '';
-        if ($file != '' && ($media = rex_media::get($file))) {
+        if ($file !== '' && ($media = rex_media::get($file))) {
             $copyright = $media->getValue('med_copyright');
             $copyright_link = $media->getValue('med_copyright_link');
             if ($copyright_link != '' && $type === 'link') {

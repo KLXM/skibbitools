@@ -3,17 +3,22 @@
 namespace KLXM\SkibbiTools;
 
 use rex_extension;
+use rex_extension_point;
 
 class FocusPointLabels
 {
     public function __construct()
     {
-        rex_extension::register('FOCUSPOINT_PREVIEW_SELECT', function ($extensionPoint): array {
+        rex_extension::register('FOCUSPOINT_PREVIEW_SELECT', function (rex_extension_point $extensionPoint): array {
             return $this->updateMediaTypesLabels($extensionPoint);
         });
     }
 
-    public function updateMediaTypesLabels($extensionPoint): array
+    /**
+     * @param rex_extension_point<string> $extensionPoint
+     * @return array<string, array{label: string}> a map of media types with their updated labels
+     */
+    public function updateMediaTypesLabels(rex_extension_point $extensionPoint): array
     {
         $mediaTypes = $extensionPoint->getSubject();
         foreach ($extensionPoint->getParams()['effectsInUse'] as $effect) {
