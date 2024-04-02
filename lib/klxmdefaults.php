@@ -28,29 +28,29 @@ class Tool
     public static function cke5LightboxHelper(): void
     {
         if (rex::isFrontend()) {
-            // Code hier einfügen
+            // Register an output filter extension point
             rex_extension::register('OUTPUT_FILTER', static function (rex_extension_point $ep): void {
                 $html = $ep->getSubject();
 
-                // Verwende reguläre Ausdrücke, um verlinkte Bilder im HTML zu finden
+                // Use regular expressions to find linked images in the HTML
                 preg_match_all('/<figure\b[^>]*\bclass\s*=\s*["\'][^"\']*?\bimage\b[^"\']*["\'][^>]*>.*?<a[^>]+href=[\'"]([^\'"]+?\.(JPEG|JPG|GIF|PNG|jpg|jpeg|png|mp4|gif))[\'"][^>]*><img[^>]+src=[\'"]([^\'"]+?)[\'"][^>]*>.*?<\/figure>/i', $html, $matches, PREG_SET_ORDER);
 
-                // Durchlaufe alle Treffer
+                // Iterate through all matches
                 foreach ($matches as $match) {
-                    // Hole die abgeglichenen Werte
+                    // Get the matched values
                     $link = $match[0];
                     $href = $match[1];
                     $ext = strtolower($match[2]);
                     $src = $match[3];
 
-                    // Überprüfe, ob der href-Wert auf .jpg, .jpeg, .png oder .gif endet
+                    // Check if the href value ends with .jpg, .jpeg, .png, or .gif
                     if (in_array($ext, ['jpg', 'jpeg', 'png', 'mp4', 'gif'])) {
-                        // Wenn es ein Bild ist, ersetze das <figure>-Tag mit der aktualisierten Version
+                        // If it's an image, replace the <figure> tag with the updated version
                         $updated_link = str_replace('<figure ', '<figure uk-lightbox ', $link);
                         $html = str_replace($link, $updated_link, $html);
                     }
                 }
-                // Setze das geänderte HTML als neues Subjekt
+                // Set the modified HTML as the new subject
                 $ep->setSubject($html);
             }, rex_extension::LATE);
         }
@@ -72,41 +72,46 @@ class Tool
     }
 
     /**
-     * Liefert den alternativen Text für ein Media-Objekt aus REDAXO.
+     * Retrieves the alternative text for a media object from REDAXO.
      *
-     * @param string $file der Dateiname des Media-Objekts
-     * @param string $alt ein optionaler alternativer Text
-     * @return string der alternative Text oder ein leerer String, wenn nicht verfügbar
+     * @param string $file the filename of the media object
+     * @param string $alt an optional alternative text
+     * @return string the alternative text or an empty string if not available
      */
-    public static function mediaAlt(string $file = '', string $alt = ''): string
+    public static function mediaAlt(string $file = '', string $alt = ''): ?string
     {
         if ($alt !== '') {
             return $alt;
         }
 
         $media = rex_media::get($file);
-        return $media ? $media->getValue('med_description') : '';
+        if ($media !== null) {
+            // Make sure the value is returned as a string
+            return (string) $media->getValue('med_description');
+        }
+
+        return '';
     }
 
     /**
-     * Liefert den Code für die Einbindung von VTT-Dateien für Videos aus REDAXO, falls vorhanden.
+     * Retrieves the code for embedding VTT files for videos from REDAXO, if available.
      *
-     * @param string $videoFile der Dateiname des Video-Objekts im Medienpool
-     * @return string der HTML-Code für das <track> Element mit der VTT-Datei oder ein leerer String, wenn nicht verfügbar
+     * @param string $videoFile the filename of the video object in the media pool
+     * @return string the HTML code for the <track> element with the VTT file or an empty string if not available
      */
     public static function getVideoSubtitle(string $videoFile): string
     {
-        // Ersetzt die Video-Dateiendung mit .vtt für die Untertitel-Datei
+        // Replaces the video file extension with .vtt for the subtitle file
         $vttFile = preg_replace('/\.[^.]+$/', '.vtt', $videoFile);
 
-        // Prüft, ob die VTT-Datei im Medienpool existiert
+        // Checks if the VTT file exists in the media pool
         $media = rex_media::get($vttFile);
         if ($media) {
-            // Gibt den HTML-Code für das <track> Element zurück, wenn die VTT-Datei vorhanden ist
+            // Returns the HTML code for the <track> element if the VTT file exists
             return '<track kind="subtitles" src="/media/' . $vttFile . '" srclang="de" label="Deutsch">';
         }
 
-        // Gibt einen leeren String zurück, wenn keine VTT-Datei vorhanden ist
+        // Returns an empty string if no VTT file exists
         return '';
     }
 
@@ -143,8 +148,23 @@ class Tool
 
     public static function formatGermanDate(string $date): string
     {
+        $timestamp = strtotime($date);
+        if ($timestamp === false) {
+            // Return a default value or throw an exception if the date is invalid.
+            // Here, for example, return an empty string.
+            return '';
+        }
+
         $formatter = new IntlDateFormatter('de_DE', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
-        return $formatter->format(strtotime($date));
+        $formattedDate = $formatter->format($timestamp);
+
+        // Check if the formatting was successful. IntlDateFormatter::format can return false.
+        if ($formattedDate === false) {
+            // Handle the error, for example, by returning a default value or throwing an exception.
+            return '';
+        }
+
+        return $formattedDate;
     }
 
     public static function checkUrl(?string $url): ?string
