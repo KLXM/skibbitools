@@ -1,4 +1,5 @@
 <?php
+namespace KLXM\SkibbiTools;
 
 class assets_manager
 {
